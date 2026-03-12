@@ -1,0 +1,5 @@
+### Editors
+.obsidian/
+.idea/
+*.code-workspace
+*.DS_Store
