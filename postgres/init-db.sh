@@ -21,11 +21,11 @@ echo "init-db.sh: Executing initialisation scripts"
 
 # Execute SQL scripts
 echo "init-db.sh: Creating tables"
-psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scripts/schema/create_tables.sql
+psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scripts/create_tables.sql
 echo "init-db.sh: Creating functions"
 echo "init-db.sh: Creating procedures"
 echo "init-db.sh: Creating triggers"
 echo "init-db.sh: Seeding tables" # Some logic ought to be added to handle dev/production env
-psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scripts/seed_data/dev_data.sql
+psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scripts/seed_dev_data.sql
 
 echo "init-db.sh: Database initialisation complete"
