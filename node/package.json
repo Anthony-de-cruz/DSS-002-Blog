@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./app/app.js",
-    "start.dev": "nodemon -L",
-    "clear-db": "./scripts/clear-db.sh",
-    "seed-db": "./scripts/seed-db.sh",
+    "start.dev": "nodemon -L"
   },   
   "dependencies": {
     "express": "^4.21.1",
