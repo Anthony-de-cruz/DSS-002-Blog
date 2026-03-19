@@ -1,16 +1,9 @@
 -- !psql
 
-INSERT INTO blacklisted_passwords(password)
-VALUES ('password'),
-       ('password123'),
-       ('12345678'),
-       ('qwerty123'),
-       ('abc12345');
-
-INSERT INTO end_user (username, password, email)
-VALUES ('user1', 'password', 'example@email.com');
-INSERT INTO end_user (username, password, email)
-VALUES ('user2', 'password123', 'example@email.com');
+INSERT INTO end_user (username, password_hash, password_salt, totp_secret, email)
+VALUES ('user1', decode('AAAA', 'hex'), decode('BBBB', 'hex'), decode('CCCC', 'hex'), 'example1@email.com');
+INSERT INTO end_user (username, password_hash, password_salt, totp_secret, email)
+VALUES ('user2', decode('AAAB', 'hex'), decode('BBBC', 'hex'), decode('CCCD', 'hex'), 'example2@email.com');
 
 INSERT INTO payment_method (username, last_4_digits, expiry_year, expiry_month)
 VALUES ('user1', '1234', 2030, 1);
