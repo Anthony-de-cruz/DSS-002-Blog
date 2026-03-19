@@ -25,6 +25,7 @@ psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scri
 echo "init-db.sh: Creating functions"
 echo "init-db.sh: Creating procedures"
 echo "init-db.sh: Creating triggers"
+psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scripts/create_triggers.sql
 echo "init-db.sh: Seeding tables" # Some logic ought to be added to handle dev/production env
 psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /scripts/seed_dev_data.sql
 
