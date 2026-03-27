@@ -2,15 +2,14 @@
 
 CREATE TABLE IF NOT EXISTS end_user (
     username      VARCHAR(20),
-    password_hash BYTEA       NOT NULL UNIQUE CHECK (octet_length(password_hash) = 2),
-    password_salt BYTEA       NOT NULL UNIQUE CHECK (octet_length(password_salt) = 2),
-    totp_secret   BYTEA       NOT NULL UNIQUE CHECK (octet_length(totp_secret) = 2),
-    email         VARCHAR(30) NOT NULL UNIQUE,
-    premium       BOOLEAN     DEFAULT FALSE NOT NULL,
+    password_hash BYTEA        NOT NULL UNIQUE CHECK (octet_length(password_hash) <= 48), -- TODO: Set these to = rather than <=.
+    totp_secret   BYTEA        NOT NULL UNIQUE CHECK (octet_length(totp_secret) <= 64),
+    email         VARCHAR(30)  NOT NULL UNIQUE,
+    premium       BOOLEAN      DEFAULT FALSE NOT NULL,
     PRIMARY KEY (username)
 );
 
--- Should probably look to encrypted the following table.
+-- Should probably look to encrypt the following table.
 CREATE TABLE IF NOT EXISTS payment_method (
     payment_method_id SERIAL,
     username          VARCHAR(20) NOT NULL,
