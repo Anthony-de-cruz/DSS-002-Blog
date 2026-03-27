@@ -1,9 +1,26 @@
 -- !psql
 
-INSERT INTO end_user (username, password_hash, password_salt, totp_secret, email)
-VALUES ('user1', decode('AAAA', 'hex'), decode('BBBB', 'hex'), decode('CCCC', 'hex'), 'example1@email.com');
-INSERT INTO end_user (username, password_hash, password_salt, totp_secret, email)
-VALUES ('user2', decode('AAAB', 'hex'), decode('BBBC', 'hex'), decode('CCCD', 'hex'), 'example2@email.com');
+INSERT INTO end_user (username, password_hash, totp_secret, email)
+VALUES (
+    'user1',
+    decode('10351F0F4D8DC23054606BBC2132AEA311C646640C669D8937922EA02A0AFCCB925F838A7425CB7523D0F1DE0CD0F8FF', 'hex'),
+    decode('17971DB385E5F8D07196E41DBEE61882CF52EEE161ADABDD951DDCB49592E8D1F0DBA9342418251F3CC11FEC25CEBCDB6FFC127C2AFD46FB1F4790BF', 'hex'),
+    'example1@email.com'
+);
+INSERT INTO end_user (username, password_hash, totp_secret, email)
+VALUES (
+    'user2',
+    decode('20351F0F4D8DC23054606BBC2132AEA311C646640C669D8937922EA02A0AFCCB925F838A7425CB7523D0F1DE0CD0F8FF', 'hex'),
+    decode('27971DB385E5F8D07196E41DBEE61882CF52EEE161ADABDD951DDCB49592E8D1F0DBA9342418251F3CC11FEC25CEBCDB6FFC127C2AFD46FB1F4790BF', 'hex'),
+    'example2@email.com'
+);
+INSERT INTO end_user (username, password_hash, totp_secret, email)
+VALUES (
+    'John Doe',
+    decode('30351F0F4D8DC23054606BBC2132AEA311C646640C669D8937922EA02A0AFCCB925F838A7425CB7523D0F1DE0CD0F8FF', 'hex'),
+    decode('37971DB385E5F8D07196E41DBEE61882CF52EEE161ADABDD951DDCB49592E8D1F0DBA9342418251F3CC11FEC25CEBCDB6FFC127C2AFD46FB1F4790BF', 'hex'),
+    'johndoe@email.com'
+);
 
 INSERT INTO payment_method (username, last_4_digits, expiry_year, expiry_month)
 VALUES ('user1', '1234', 2030, 1);

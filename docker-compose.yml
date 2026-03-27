@@ -1,5 +1,5 @@
  services:
-  blog-frontend:
+  blog-server:
     container_name: blog-node
     build: node/
     restart: unless-stopped
@@ -10,7 +10,9 @@
       - "3000:3000"
     environment:
       PORT: 3000
-      DB_HOST: blog-database
+      PASSWORD_PEPPER: "TEMPORARY_PEPPER"
+      TOTP_ENCRYPTION_KEY: "5f8d3c9a7b2e4d1f6a9c0e3b8d7f2a1c4e6b9d0f3a2c7e8b1d4f6a9c0e3b8d7f" # Temporary
+      DB_HOST: blog-postgres
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: postgres
