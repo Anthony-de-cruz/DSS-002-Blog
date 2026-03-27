@@ -1,9 +1,21 @@
-const express = require('express')
-const app = express();
-const port = 3000;
+import createError from 'http-errors';
+import bodyParser from 'body-parser';
+import fs from 'fs';
+import http from 'http';
+import express from 'express';
 
-var bodyParser = require('body-parser');
-const fs = require('fs');
+import Database from './database.js';
+import Cryptography from './cryptography.js';
+import User from './models/user.js';
+
+const app = express();
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -145,6 +157,84 @@ app.post('/makepost', function(req, res) {
     res.sendFile(__dirname + "/public/html/my_posts.html");
  });
 
-app.listen(port, () => {
-    console.log(`My app listening on port ${port}!`)
+// error handler
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render("error");
 });
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render("error");
+});
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+  }
+
+  var bind = typeof process.env.PORT === "string" ? "Pipe " + port : "Port " + port;
+
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  console.log("\nListening on " + bind + "...\n");
+}
+
+/// Runtime setup.
+var server;
+(async () => {
+  if (!await Database.testConnection()) {
+    process.exit(1);
+  }
+
+  server = http.createServer(app);
+  server.listen(process.env.PORT);
+  server.on("error", onError);
+  server.on("listening", onListening);
+})();
+
+
+console.log("EXAMPLE USER CREATION + DB WRITE")
+
+
+const newUser = await User.buildNew("user500", "BRUHword", "mail@mail.com");
+console.log(newUser);
+//console.log(newUser.generateTotpUri());
+newUser.writeToDatabase();
