@@ -1,25 +1,18 @@
-import { generateURI } from "otplib";
-
-import Database from "../database.js";
-import Cryptography from "../cryptography.js";
+import { query } from "../database.js";
+import { hashPassword, generateTotpSecret } from "../cryptography.js";
 
 /**
- *
- *
  *
  */
 class User {
     /**
      * @param {string} username
-     * @param {buffer} password_hash
+     * @param {Buffer} password_hash
+     * @param {Buffer} totp_secret
+     * @param {string} email
+     * @param {boolean} premium 
      */
-    constructor(
-        username,
-        password_hash,
-        totp_secret,
-        email,
-        premium,
-    ) {
+    constructor(username, password_hash, totp_secret, email, premium) {
         this.username = username;
         this.password_hash = password_hash;
         this.totp_secret = totp_secret;
@@ -34,8 +27,8 @@ class User {
     static async buildNew(username, password, email) {
         return new User(
             username,
-            await Cryptography.hashPassword(password),
-            await Cryptography.generateTotpSecret(),
+            await hashPassword(password),
+            await generateTotpSecret(),
             email,
             false,
         );
@@ -44,11 +37,12 @@ class User {
     /**
      * Build an instance from a prexisting DB record
      *
+     *
      * @throws If user is not found for query fails.
      * @returns
      */
     static async readFromDatabase(username) {
-        const result = await Database.query(
+        const result = await query(
             "SELECT * FROM end_user WHERE username = $1;",
             [username],
         );
@@ -73,7 +67,7 @@ class User {
      * @returns
      */
     async writeToDatabase() {
-        await Database.query(
+        await query(
             `INSERT INTO end_user (username, password_hash, totp_secret, email, premium)
         VALUES ($1, $2, $3, $4, $5)`,
             [
@@ -84,17 +78,6 @@ class User {
                 this.premium,
             ],
         );
-    }
-
-    /**
-     * Generate TOTP URI based on their credientials.
-     */
-    generateTotpUri() {
-        return generateURI({
-          issuer: "CyberBlog",
-          label: this.email,
-          secret: this.totp_secret,
-        });
     }
 }
 
