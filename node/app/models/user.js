@@ -1,10 +1,10 @@
-import { query } from "../database.js";
+import { DatabaseError, query } from "../database.js";
 import { hashPassword, generateTotpSecret } from "../cryptography.js";
 
 /**
- *
+ * Represents a system user.
  */
-class User {
+export class User {
     /**
      * @param {string} username
      * @param {Buffer} password_hash
@@ -23,6 +23,11 @@ class User {
     /**
      * Generate
      *
+     * @param {string} username - 
+     * @param {string} password - 
+     * @param {string} email - 
+     * @returns
+     * @throws
      */
     static async buildNew(username, password, email) {
         return new User(
@@ -35,11 +40,12 @@ class User {
     }
 
     /**
-     * Build an instance from a prexisting DB record
+     * Build an instance from a prexisting DB record.
      *
-     *
-     * @throws If user is not found for query fails.
-     * @returns
+     * @param {string} username - The username by which to read.
+     * @returns {Promise<User>}
+     * @throws {Error} Failed to find username.
+     * @throws {DatabaseError} Failed to perform database query.
      */
     static async readFromDatabase(username) {
         const result = await query(
@@ -61,10 +67,10 @@ class User {
     }
 
     /**
-     * Build an instance from a prexisting DB record
+     * Build an instance from a prexisting DB record.
      *
+     * @returns {Promise<void>}
      * @throws
-     * @returns
      */
     async writeToDatabase() {
         await query(
@@ -80,5 +86,3 @@ class User {
         );
     }
 }
-
-export default User;

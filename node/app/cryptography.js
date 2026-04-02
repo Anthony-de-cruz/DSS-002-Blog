@@ -6,33 +6,38 @@ import {
 } from "node:crypto";
 
 import { generateSecret, generate, verify, generateURI } from "otplib";
+import { sign, verify } from "jsonwebtoken";
+
+const passwordPepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
+const passwordHashingAlgo = "argon2id";
+
+const totpEncryptionKey = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
+
+const sessionPublicKey = Buffer.from(process.env.SESSION_PUB_KEY, "hex");
+const sessionPrivateKey = Buffer.from(process.env.SESSION_PRI_KEY, "hex");
+const sessionSigningAlgo = ["ES256"];
 
 /**
  * Hash a plaintext password.
  *
  * @param {string} password - The password to be hashed.
  * @returns {Promise<Buffer>} A buffer containing the hashed password.
- * @throws {InvalidPasswordError} Invalid password.
+ * @throws {BadPasswordError} Invalid password.
  * @throws {CryptographyError} Hashing operation failed.
  */
 export async function hashPassword(password) {
     if (password.length < 8) {
-        throw new InvalidPasswordError(
-            "Password was below minimum length of 8.",
-        );
+        throw new BadPasswordError("Password was below minimum length of 8.");
     }
     if (password.length > 64) {
-        throw new InvalidPasswordError(
-            "Password exceeded maximum length of 64.",
-        );
+        throw new BadPasswordError("Password exceeded maximum length of 64.");
     }
 
     try {
         const salt = randomBytes(16);
-        const pepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
         const hash = await new Promise((resolve, reject) => {
             argon2(
-                "argon2id",
+                passwordHashingAlgo,
                 {
                     message: password,
                     nonce: salt,
@@ -40,7 +45,7 @@ export async function hashPassword(password) {
                     tagLength: 32,
                     memory: 65536,
                     passes: 2,
-                    secret: pepper
+                    secret: passwordPepper,
                 },
                 (err, derivedKey) => (err ? reject(err) : resolve(derivedKey)),
             );
@@ -67,10 +72,9 @@ export async function verifyPassword(password, passwordHash) {
     const salt = passwordHash.subarray(-16); // last 16 bytes
 
     try {
-        const pepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
         const new_hash = await new Promise((resolve, reject) => {
             argon2(
-                "argon2id",
+                passwordHashingAlgo,
                 {
                     message: password,
                     nonce: salt,
@@ -78,7 +82,7 @@ export async function verifyPassword(password, passwordHash) {
                     tagLength: 32,
                     memory: 65536,
                     passes: 2,
-                    secret: pepper
+                    secret: passwordPepper,
                 },
                 (err, derivedKey) => (err ? reject(err) : resolve(derivedKey)),
             );
@@ -110,6 +114,7 @@ export async function generateTotpSecret() {
  *
  * @param {Buffer} encryptedTotpSecret - The secret.
  * @returns {Promise<string>}A string containing the code.
+ * @throws {InvalidTokenError} Cannot decrypt.
  * @throws {CryptographyError} Decryption or generation operation failed.
  */
 async function generateTotpCode(encryptedTotpSecret) {
@@ -127,6 +132,7 @@ async function generateTotpCode(encryptedTotpSecret) {
  * @param {string} email - The user's label.
  * @param {Buffer} encryptedTotpSecret - The secret that will be decrypted.
  * @returns {Promise<string>} A string containing the URI.
+ * @throws {InvalidTokenError} Cannot decrypt.
  * @throws {CryptographyError} Decryption or verification operation failed.
  */
 export async function generateTotpUri(email, encryptedTotpSecret) {
@@ -148,6 +154,7 @@ export async function generateTotpUri(email, encryptedTotpSecret) {
  * @param {string} code - The one time code to be tested against.
  * @param {Buffer} encryptedTotpSecret - The secret.
  * @returns {Promise<boolean>} Whether the code is valid.
+ * @throws {InvalidTokenError} Cannot decrypt.
  * @throws {CryptographyError} Decryption or verification operation failed.
  */
 export async function verifyTotpCode(code, encryptedTotpSecret) {
@@ -169,10 +176,8 @@ export async function verifyTotpCode(code, encryptedTotpSecret) {
  */
 function encrypt(secret) {
     try {
-        const key = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
         const iv = randomBytes(12);
-
-        const cipher = createCipheriv("aes-256-gcm", key, iv);
+        const cipher = createCipheriv("aes-256-gcm", totpEncryptionKey, iv);
         const encryptedSecret = Buffer.concat([
             cipher.update(secret, "utf8"),
             cipher.final(),
@@ -188,6 +193,7 @@ function encrypt(secret) {
  *
  * @param {Buffer} encryptedSecret - The secret to be decrypted.
  * @returns {string} Decrypted plain text.
+ * @throws {InvalidTokenError} Cannot decrypt.
  * @throws {CryptographyError} Decryption operation failed.
  */
 function decrypt(encryptedSecret) {
@@ -199,8 +205,7 @@ function decrypt(encryptedSecret) {
     const authTag = encryptedSecret.subarray(-16); // last 16 bytes
 
     try {
-        const key = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
-        const decipher = createDecipheriv("aes-256-gcm", key, iv);
+        const decipher = createDecipheriv("aes-256-gcm", totpEncryptionKey, iv);
         decipher.setAuthTag(authTag);
         const decryptedSecret = Buffer.concat([
             decipher.update(secret, "utf8"),
@@ -209,11 +214,62 @@ function decrypt(encryptedSecret) {
 
         return decryptedSecret.toString();
     } catch (err) {
-        throw new CryptographyError();
+        throw new InvalidTokenError(err);
     }
 }
 
-export class InvalidPasswordError extends Error {
+/**
+ *
+ *
+ * @param {string} username - The username to sign with.
+ * @returns {string} The generated session token.
+ * @throws {CryptographyError} Signing operation failed.
+ */
+export async function generateSessionToken(username) {
+    try {
+        return await new Promise((resolve, reject) => {
+            sign(
+                { username },
+                sessionPrivateKey,
+                { algorithms: sessionSigningAlgo, expiresIn: "1h" },
+                (err, token) => (err ? reject(err) : resolve(token)),
+            );
+        });
+    } catch (err) {
+        throw new CryptographyError(err);
+    }
+}
+
+/**
+ *
+ *
+ * @param {} token -
+ * @returns {}
+ * @throws {InvalidTokenError} The token is invalid.
+ */
+export async function verifySessionToken(token) {
+    try {
+        return await new Promise((resolve, reject) => {
+            verify(
+                req.cookies.authToken,
+                sessionPublicKey,
+                { algorithms: sessionSigningAlgo },
+                (err, decoded) => (err ? reject(err) : resolve(decoded)),
+            );
+        });
+    } catch (err) {
+        throw new InvalidTokenError(err);
+    }
+}
+
+export class BadPasswordError extends Error {
+    constructor() {
+        super("Invalid password");
+        this.name = "InvalidPasswordError";
+    }
+}
+
+export class InvalidTokenError extends Error {
     constructor() {
         super("Invalid password");
         this.name = "InvalidPasswordError";

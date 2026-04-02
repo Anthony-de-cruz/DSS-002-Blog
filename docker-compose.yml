@@ -12,6 +12,8 @@ services:
       PORT: 3000
       PASSWORD_PEPPER: "2b3e8207cc135dabcd0464f0ce9ba74b" # Temporary
       TOTP_ENCRYPTION_KEY: "5f8d3c9a7b2e4d1f6a9c0e3b8d7f2a1c4e6b9d0f3a2c7e8b1d4f6a9c0e3b8d7f" # Temporary
+      SESSION_PUB_KEY: "123123" # Temporary
+      SESSION_PRI_KEY: "123123123" # Temporary
       DB_HOST: db
       DB_USER: postgres
       DB_PASSWORD: password
