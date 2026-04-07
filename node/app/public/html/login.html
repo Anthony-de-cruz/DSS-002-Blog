@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico">
         <link rel="stylesheet" href="../css/style.css">
-        <script src="../js/login.js" defer></script>
+        <!-- <script src="../js/login.js" defer></script> -->
     </head>
     <body>
         <header>
@@ -15,14 +15,17 @@
         <main>
         <p>Please enter your username and password to continue.</p>
 
-        <form method="post" action="/" id="login_form">
-            <label for="username_input">Username:</label>
-            <input type="text" id="username_input" name="username_input" placeholder="Please enter your username...">
+        <form method="post" action="/login" id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Please enter your username...">
 
-            <label for="password_input">Password:</label>
-            <input type="password" id="password_input" name="password_input" placeholder="Please enter your password...">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Please enter your password...">
 
-            <button id="login_btn" type="submit">Log in</button>
+            <label for="totp">One Time Password:</label>
+            <input type="text" id="totp" name="totp" placeholder="Please enter your one time password...">
+
+            <button id="loginBtn" type="submit">Log in</button>
         </form>
         </main>
     </body>

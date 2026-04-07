@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import express from "express";
 
 import { generateSessionToken, verifySessionToken } from "./cryptography.js";
 import { User } from "./models/user.js";
@@ -6,7 +6,7 @@ import { User } from "./models/user.js";
 /**
  * Begin a new user session.
  *
- * @param {Response} res
+ * @param {express.Response} res
  * @param {string} username - The username to be signed with.
  * @throws {CryptographyError} Signing operation failed.
  */
@@ -25,8 +25,8 @@ export async function initSession(res, username) {
 /**
  * Revoke current session token.
  *
- * @param {Response} res
- * @returns {Response}
+ * @param {express.Response} res
+ * @returns {express.Response}
  */
 export function revokeSession(res) {
     return res.clearCookie("sessionToken");
@@ -36,9 +36,9 @@ export function revokeSession(res) {
  * Put this middleware in front of any GET requests for protected web pages
  * that you must be logged in to see.
  *
- * @param {Request} req
- * @param {Response} res
- * @param {NextFunction} next
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
  */
 export async function verifySession(req, res, next) {
     if (!req.cookies.sessionToken) {
@@ -63,9 +63,9 @@ export async function verifySession(req, res, next) {
  * Put this middleware in front of any GET requests
  * for pages that require user data.
  *
- * @param {Request} req
- * @param {Response} res
- * @param {NextFunction} next
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
  * @returns {Promise<void>}
  */
 export async function collectSessionData(req, res, next) {

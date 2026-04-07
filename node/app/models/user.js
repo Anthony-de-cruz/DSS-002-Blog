@@ -7,15 +7,15 @@ import { hashPassword, generateTotpSecret } from "../cryptography.js";
 export class User {
     /**
      * @param {string} username
-     * @param {Buffer} password_hash
-     * @param {Buffer} totp_secret
+     * @param {Buffer} passwordHash
+     * @param {Buffer} totpSecret
      * @param {string} email
      * @param {boolean} premium 
      */
-    constructor(username, password_hash, totp_secret, email, premium) {
+    constructor(username, passwordHash, totpSecret, email, premium) {
         this.username = username;
-        this.password_hash = password_hash;
-        this.totp_secret = totp_secret;
+        this.passwordHash = passwordHash;
+        this.totpSecret = totpSecret;
         this.email = email;
         this.premium = premium;
     }
@@ -78,8 +78,8 @@ export class User {
         VALUES ($1, $2, $3, $4, $5)`,
             [
                 this.username,
-                this.password_hash,
-                this.totp_secret,
+                this.passwordHash,
+                this.totpSecret,
                 this.email,
                 this.premium,
             ],

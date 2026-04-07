@@ -5,8 +5,13 @@ import {
     createDecipheriv,
 } from "node:crypto";
 
-import { generateSecret, generate, verify, generateURI } from "otplib";
-import { sign, verify } from "jsonwebtoken";
+import {
+    generateSecret,
+    generate,
+    verify as verifyOtp,
+    generateURI,
+} from "otplib";
+import jwt from "jsonwebtoken";
 
 const passwordPepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
 const passwordHashingAlgo = "argon2id";
@@ -50,6 +55,9 @@ export async function hashPassword(password) {
                 (err, derivedKey) => (err ? reject(err) : resolve(derivedKey)),
             );
         });
+
+        // Real production environment should include
+        // hashing methodology version number in the header.
         return Buffer.concat([hash, salt]);
     } catch (err) {
         throw new CryptographyError(err);
@@ -160,7 +168,7 @@ export async function generateTotpUri(email, encryptedTotpSecret) {
 export async function verifyTotpCode(code, encryptedTotpSecret) {
     const secret = decrypt(encryptedTotpSecret);
     try {
-        const result = await verify({ secret: secret, token: code });
+        const result = await verifyOtp({ secret: secret, token: code });
         return result.valid;
     } catch (err) {
         throw new CryptographyError(err);
@@ -172,7 +180,7 @@ export async function verifyTotpCode(code, encryptedTotpSecret) {
  *
  * @param {string} secret - The secret to be encrypted.
  * @returns {Buffer} Encrypted buffer.
- * @throws {CryptographyError} Decryption operation failed.
+ * @throws {CryptographyError} Ecryption operation failed.
  */
 function encrypt(secret) {
     try {
@@ -182,7 +190,15 @@ function encrypt(secret) {
             cipher.update(secret, "utf8"),
             cipher.final(),
         ]);
-        return Buffer.concat([iv, encryptedSecret, cipher.getAuthTag()]);
+        const authTag = cipher.getAuthTag();
+
+        // Real production environment should include
+        // encryption methodology version number in the header.
+        const header = Buffer.alloc(12); // Allocate 3 × 4 bytes for header.
+        header.writeUInt32BE(iv.length, 0);
+        header.writeUInt32BE(encryptedSecret.length, 4);
+        header.writeUInt32BE(authTag.length, 8);
+        return Buffer.concat([header, iv, encryptedSecret, authTag]);
     } catch (err) {
         throw new CryptographyError(err);
     }
@@ -197,21 +213,37 @@ function encrypt(secret) {
  * @throws {CryptographyError} Decryption operation failed.
  */
 function decrypt(encryptedSecret) {
-    if (encryptedSecret.length !== 64) {
-        throw new CryptographyError();
+    // Parse buffer header.
+    const headerLength = 12;
+    if (encryptedSecret.length < headerLength) {
+        throw new CryptographyError("Invalid buffer length");
     }
-    const iv = encryptedSecret.subarray(0, 12); // first 12 bytes
-    const secret = encryptedSecret.subarray(12, -16); // middle bytes
-    const authTag = encryptedSecret.subarray(-16); // last 16 bytes
 
+    const ivLength = encryptedSecret.readUInt32BE(0);
+    const cipherLength = encryptedSecret.readUInt32BE(4);
+    const tagLength = encryptedSecret.readUInt32BE(8);
+    const expectedLength = headerLength + ivLength + cipherLength + tagLength;
+
+    if (encryptedSecret.length !== expectedLength) {
+        throw new CryptographyError("Invalid buffer length");
+    }
+
+    // Parse buffer body.
+    let offset = headerLength;
+    const iv = encryptedSecret.subarray(offset, offset + ivLength);
+    offset += ivLength;
+    const cipher = encryptedSecret.subarray(offset, offset + cipherLength);
+    offset += cipherLength;
+    const authTag = encryptedSecret.subarray(offset, offset + tagLength);
+
+    // Decrypt.
     try {
         const decipher = createDecipheriv("aes-256-gcm", totpEncryptionKey, iv);
         decipher.setAuthTag(authTag);
         const decryptedSecret = Buffer.concat([
-            decipher.update(secret, "utf8"),
+            decipher.update(cipher),
             decipher.final(),
         ]);
-
         return decryptedSecret.toString();
     } catch (err) {
         throw new InvalidTokenError(err);
@@ -228,7 +260,7 @@ function decrypt(encryptedSecret) {
 export async function generateSessionToken(username) {
     try {
         return await new Promise((resolve, reject) => {
-            sign(
+            jwt.sign(
                 { username },
                 sessionPrivateKey,
                 { algorithms: sessionSigningAlgo, expiresIn: "1h" },
@@ -250,8 +282,8 @@ export async function generateSessionToken(username) {
 export async function verifySessionToken(token) {
     try {
         return await new Promise((resolve, reject) => {
-            verify(
-                req.cookies.authToken,
+            jwt.verify(
+                token,
                 sessionPublicKey,
                 { algorithms: sessionSigningAlgo },
                 (err, decoded) => (err ? reject(err) : resolve(decoded)),
