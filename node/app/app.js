@@ -2,13 +2,14 @@ import http from "http";
 import path from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
-
-import { User } from "./models/user.js";
-import { generateTotpUri } from "./cryptography.js";
+import morgan from "morgan";
 
 import { testConnection } from "./database.js";
 import { router as indexRouter } from "./routes/index.js";
 import { router as loginRouter } from "./routes/login.js";
+import { router as logoutRouter } from "./routes/logout.js";
+import { router as accountRouter } from "./routes/account.js";
+import { router as apiRouter } from "./routes/api.js";
 
 const app = express();
 
@@ -17,10 +18,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Routing
+// Request logging middleware.
+app.use(morgan("[:date[clf]] :method :url :status :response-time ms"));
+
+// Routing middleware.
 app.use(express.static(path.join(import.meta.dirname, "public")));
 app.use("/", indexRouter);
 app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
+app.use("/account", accountRouter);
+app.use("/api", apiRouter);
+
+// Error handling middleware.
+app.use((req, res) => {
+    console.log("Sending 404: " + req.path.toString());
+    res.status(404).sendFile(
+        path.join(import.meta.dirname, "public", "html", "404.html"),
+    );
+});
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).sendFile(
+        path.join(import.meta.dirname, "public", "html", "500.html"),
+    );
+});
 
 // // Landing page
 // app.get("/", (req, res) => {
@@ -168,65 +189,12 @@ app.use("/login", loginRouter);
 //     res.sendFile(__dirname + "/public/html/my_posts.html");
 // });
 
-// Catch-all 404
-app.use((req, res) => {
-    console.log("Sending 404: " + req.path.toString());
-    res.status(404).sendFile(
-        path.join(import.meta.dirname, "public", "html", "404.html"),
-    );
-});
-
-// General error handler
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).sendFile(
-        path.join(import.meta.dirname, "public", "html", "500.html"),
-    );
-});
-
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError(error) {
-    if (error.syscall !== "listen") {
-        throw error;
-    }
-
-    var bind =
-        typeof process.env.PORT === "string" ? "Pipe " + port : "Port " + port;
-
-    switch (error.code) {
-        case "EACCES":
-            console.error(bind + " requires elevated privileges");
-            process.exit(1);
-        case "EADDRINUSE":
-            console.error(bind + " is already in use");
-            process.exit(1);
-        default:
-            throw error;
-    }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
-    console.log("\nListening on " + bind + "...\n");
-}
-
 /// Runtime setup.
-var server;
 (async () => {
-    if (!(await testConnection())) {
-        process.exit(1);
-    }
-
-    server = http.createServer(app);
+    if (!(await testConnection())) process.exit(1);
+    const server = http.createServer(app);
     server.listen(process.env.PORT);
-    server.on("error", onError);
-    server.on("listening", onListening);
+    console.log(`\nListening on ${process.env.PORT}...`);
 
     // const temp = await User.buildNew("user500", "password123", "email500@email.com");
     // console.log(temp);

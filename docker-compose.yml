@@ -10,10 +10,11 @@ services:
       - "3000:3000"
     environment:
       PORT: 3000
-      PASSWORD_PEPPER: "2b3e8207cc135dabcd0464f0ce9ba74b" # Temporary
-      TOTP_ENCRYPTION_KEY: "5f8d3c9a7b2e4d1f6a9c0e3b8d7f2a1c4e6b9d0f3a2c7e8b1d4f6a9c0e3b8d7f" # Temporary
-      SESSION_PUB_KEY: "123123" # Temporary
-      SESSION_PRI_KEY: "123123123" # Temporary
+      # NONE OF THESE SECRETS ARE REAL.
+      PASSWORD_PEPPER: "2b3e8207cc135dabcd0464f0ce9ba74b"
+      TOTP_ENCRYPTION_KEY: "5f8d3c9a7b2e4d1f6a9c0e3b8d7f2a1c4e6b9d0f3a2c7e8b1d4f6a9c0e3b8d7f"
+      SESSION_PUB_KEY: "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJXwdnDprGlJbJ0Esy3lt5/YsHagIx9KwfMp7qB0WnKSMw2ftrQoUBGS+e+q5ibzo+H3gnGMLovgJozmhuhC3HQ==-----END PUBLIC KEY-----"
+      SESSION_PRI_KEY: "-----BEGIN PRIVATE KEY-----MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgGAq/PY6BFSHldtcKwdBbPD5byDQhpxLproNsey9w1+ehRANCAAQlfB2cOmsaUlsnQSzLeW3n9iwdqAjH0rB8ynuoHRacpIzDZ+2tChQEZL576rmJvOj4feCcYwui+AmjOaG6ELcd-----END PRIVATE KEY-----"
       DB_HOST: db
       DB_USER: postgres
       DB_PASSWORD: password

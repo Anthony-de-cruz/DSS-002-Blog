@@ -1,13 +1,13 @@
 import path from "path";
 import express from "express";
 
-import { collectSessionData, verifySession } from "../authentication.js";
+import { collectSessionData, verifyPostAuthSession } from "../authentication.js";
+import { User } from "../models/user.js";
 
 export const router = express.Router();
 
 /* GET index. */
-router.get("/", verifySession, collectSessionData, function (req, res, next) {
-    console.log("sending index.html")
+router.get("/", verifyPostAuthSession, collectSessionData, function (req, res, next) {
     res.sendFile(path.join(import.meta.dirname, "../public/html/index.html"));
 });
 

@@ -18,9 +18,26 @@ const passwordHashingAlgo = "argon2id";
 
 const totpEncryptionKey = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
 
-const sessionPublicKey = Buffer.from(process.env.SESSION_PUB_KEY, "hex");
-const sessionPrivateKey = Buffer.from(process.env.SESSION_PRI_KEY, "hex");
-const sessionSigningAlgo = ["ES256"];
+import { generateKeyPairSync } from "crypto";
+
+const { publicKey, privateKey } = generateKeyPairSync("ec", {
+    namedCurve: "P-256",
+    publicKeyEncoding: { type: "spki", format: "pem" },
+    privateKeyEncoding: { type: "pkcs8", format: "pem" },
+});
+
+console.log("Generating ES256 Key Pair...");
+console.log(`${privateKey}\n${publicKey}`);
+console.log("DO NOT USE THIS IN PRODUCTION");
+
+// const sessionPublicKey = Buffer.from(process.env.SESSION_PUB_KEY, "hex");
+// const sessionPrivateKey = Buffer.from(process.env.SESSION_PRI_KEY, "hex");
+// const sessionPublicKey = process.env.SESSION_PUB_KEY
+// const sessionPrivateKey = process.env.SESSION_PRI_KEY
+
+const sessionPublicKey = publicKey;
+const sessionPrivateKey = privateKey;
+const sessionSigningAlgo = "ES256";
 
 /**
  * Hash a plaintext password.
@@ -251,19 +268,20 @@ function decrypt(encryptedSecret) {
 }
 
 /**
+ * Generate a signed session token.
  *
- *
- * @param {string} username - The username to sign with.
- * @returns {string} The generated session token.
+ * @param {string} payload - The payload to sign.
+ * @param {number} expiresIn - The time to expiry.
+ * @returns {Promise<string>} The generated session token.
  * @throws {CryptographyError} Signing operation failed.
  */
-export async function generateSessionToken(username) {
+export async function generateSessionToken(payload, expiresIn) {
     try {
         return await new Promise((resolve, reject) => {
             jwt.sign(
-                { username },
+                payload,
                 sessionPrivateKey,
-                { algorithms: sessionSigningAlgo, expiresIn: "1h" },
+                { algorithm: sessionSigningAlgo, expiresIn: expiresIn },
                 (err, token) => (err ? reject(err) : resolve(token)),
             );
         });
@@ -275,17 +293,17 @@ export async function generateSessionToken(username) {
 /**
  *
  *
- * @param {} token -
- * @returns {}
- * @throws {InvalidTokenError} The token is invalid.
+ * @param {string} token - The session token.
+ * @returns {Promise<string>} The decoded payload.
+ * @throws {CryptographyError} Signing operation failed.
  */
-export async function verifySessionToken(token) {
+export async function decodeSessionToken(token) {
     try {
         return await new Promise((resolve, reject) => {
             jwt.verify(
                 token,
                 sessionPublicKey,
-                { algorithms: sessionSigningAlgo },
+                { algorithms: [sessionSigningAlgo] },
                 (err, decoded) => (err ? reject(err) : resolve(decoded)),
             );
         });
