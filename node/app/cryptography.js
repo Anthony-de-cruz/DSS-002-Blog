@@ -179,7 +179,6 @@ export async function generateTotpUri(email, encryptedTotpSecret) {
  * @param {string} code - The one time code to be tested against.
  * @param {Buffer} encryptedTotpSecret - The secret.
  * @returns {Promise<boolean>} Whether the code is valid.
- * @throws {InvalidTokenError} Cannot decrypt.
  * @throws {CryptographyError} Decryption or verification operation failed.
  */
 export async function verifyTotpCode(code, encryptedTotpSecret) {

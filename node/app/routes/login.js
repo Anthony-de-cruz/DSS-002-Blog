@@ -14,94 +14,65 @@ export const router = express.Router();
 
 /* GET login. */
 router.get("/", collectSessionData, function (req, res, next) {
-    if (res.locals.loggedIn) {
-        console.log("logged in, redirecting to /");
-        res.redirect("/");
-    }
-
-    console.log("sending login.html");
+    if (res.locals.loggedIn) res.redirect("/");
     res.sendFile(path.join(import.meta.dirname, "../public/html/login.html"));
 });
 
 /* POST login. */
 router.post("/", collectSessionData, async function (req, res, next) {
-    if (res.locals.loggedIn) {
-        console.log("logged in, redirecting to /");
-        res.redirect("/");
-    }
+    if (res.locals.loggedIn) res.redirect("/");
 
-    if (req.body.username === undefined || req.body.password === undefined) {
-        console.log("err");
-        return next();
+    if (
+        req.body.username === undefined ||
+        req.body.username.length === 0 ||
+        req.body.password === undefined ||
+        req.body.password.length === 0
+    ) {
+        return res.redirect("/login?error=missingFields");
     }
-    console.log(`${req.body.username}, ${req.body.password}`);
+    console.log(`Attemping to log in as: ${req.body.username}...`);
 
     let user;
     try {
         user = await User.readFromDatabase(req.body.username);
     } catch (err) {
-        console.log(err);
-        return next();
+        console.error(err);
+        return res.redirect("/login?error=invalidCredentials");
     }
 
-    if (!(await verifyPassword(req.body.password, user.passwordHash))) {
-        console.log("Invalid Password");
-        return next();
-    }
+    if (!(await verifyPassword(req.body.password, user.passwordHash)))
+        return res.redirect("/login?error=invalidCredentials");
 
     await initPreAuthSession(res, user.username);
-
-    console.log("Login successful");
-
     res.redirect("/login/mfa");
 });
 
 /* GET login mfa. */
-router.get(
-    "/mfa",
-    verifyPreAuthSession,
-    collectSessionData,
-    function (req, res, next) {
-        if (res.locals.loggedIn) {
-            console.log("logged in, redirecting to /");
-            res.redirect("/");
-        }
+router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
+    if (res.locals.loggedIn) res.redirect("/");
 
-        console.log("sending login_mfa.html");
-        res.sendFile(
-            path.join(import.meta.dirname, "../public/html/login_mfa.html"),
-        );
-    },
-);
+    res.sendFile(path.join(import.meta.dirname, "../public/html/login_mfa.html"));
+});
 
 /* POST login mfa. */
-router.post(
-    "/mfa",
-    verifyPreAuthSession,
-    collectSessionData,
-    async function (req, res, next) {
-        if (req.body.totp === undefined) {
-            console.log("err");
-            return next();
+router.post("/mfa", verifyPreAuthSession, collectSessionData, async function (req, res, next) {
+    if (req.body.totp === undefined || req.body.totp.length === 0)
+        return res.redirect("/login/mfa?error=missingFields");
+
+    console.log(`Attemping to mfa with ${req.body.totp}...`);
+
+    if ((!res.locals.user) instanceof User) {
+        return next(new Error("Failed to get user data."));
+    }
+
+    try {
+        if (!(await verifyTotpCode(req.body.totp, res.locals.user.totpSecret))) {
+            return res.redirect("/login/mfa?error=invalidCredentials");
         }
+    } catch (err) {
+        return next(err);
+    }
 
-        console.log(`${req.body.totp}`);
-
-        if ((!res.locals.user) instanceof User) {
-            console.log("err");
-            return next();
-        }
-
-        if (
-            !(await verifyTotpCode(req.body.totp, res.locals.user.totpSecret))
-        ) {
-            console.log("invalid code");
-            return next();
-        }
-
-        console.log("success!");
-
-        await initPostAuthSession(res, res.locals.user.username);
-        res.redirect("/");
-    },
-);
+    await initPostAuthSession(res, res.locals.user.username);
+    res.redirect("/");
+});
