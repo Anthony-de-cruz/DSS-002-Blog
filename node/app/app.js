@@ -32,15 +32,11 @@ app.use("/api", apiRouter);
 // Error handling middleware.
 app.use((req, res) => {
     console.log("Sending 404: " + req.path.toString());
-    res.status(404).sendFile(
-        path.join(import.meta.dirname, "public", "html", "404.html"),
-    );
+    res.status(404).sendFile(path.join(import.meta.dirname, "public", "html", "404.html"));
 });
 app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).sendFile(
-        path.join(import.meta.dirname, "public", "html", "500.html"),
-    );
+    res.status(500).sendFile(path.join(import.meta.dirname, "public", "html", "500.html"));
 });
 
 // // Landing page

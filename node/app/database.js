@@ -57,10 +57,7 @@ export async function query(query, params) {
                 });
             default:
                 console.error("Database query error:", err);
-                throw new DatabaseError(
-                    "An unexpected database error occurred.",
-                    { cause: err },
-                );
+                throw new DatabaseError("An unexpected database error occurred.", { cause: err });
         }
     }
 }
