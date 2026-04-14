@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS payment_method (
     expiry_month      INT         NOT NULL CHECK (expiry_month BETWEEN 1 AND 12),
     PRIMARY KEY (payment_method_id),
     FOREIGN KEY (username) REFERENCES end_user (username)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
@@ -28,6 +29,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     timestamp         TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (transaction_id),
     FOREIGN KEY (payment_method_id) REFERENCES payment_method (payment_method_id)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
@@ -39,5 +41,6 @@ CREATE TABLE IF NOT EXISTS post (
     timestamp          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (post_id),
     FOREIGN KEY (username) REFERENCES end_user (username)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );

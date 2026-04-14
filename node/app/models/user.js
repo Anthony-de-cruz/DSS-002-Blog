@@ -85,4 +85,50 @@ export class User {
             ],
         );
     }
+
+    /**
+     * Update the username in the database.
+     *
+     * @param {string} newUsername - The new username to set.
+     * @returns {Promise<void>}
+     * @throws {DatabaseError} Failed to perform database query.
+     */
+    async updateUsername(newUsername) {
+        await query(
+            "UPDATE end_user SET username = $1 WHERE username = $2",
+            [newUsername, this.username],
+        );
+        this.username = newUsername;
+    }
+
+    /**
+     * Update the password in the database.
+     *
+     * @param {string} newPassword - The new password to hash and store.
+     * @returns {Promise<void>}
+     * @throws {DatabaseError} Failed to perform database query.
+     */
+    async updatePassword(newPassword) {
+        const newPasswordHash = await hashPassword(newPassword);
+        await query(
+            "UPDATE end_user SET password_hash = $1 WHERE username = $2",
+            [newPasswordHash, this.username],
+        );
+        this.passwordHash = newPasswordHash;
+    }
+
+    /**
+     * Update the email in the database.
+     *
+     * @param {string} newEmail - The new email to set.
+     * @returns {Promise<void>}
+     * @throws {DatabaseError} Failed to perform database query.
+     */
+    async updateEmail(newEmail) {
+        await query(
+            "UPDATE end_user SET email = $1 WHERE username = $2",
+            [newEmail, this.username],
+        );
+        this.email = newEmail;
+    }
 }

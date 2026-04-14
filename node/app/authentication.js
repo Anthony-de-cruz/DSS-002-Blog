@@ -168,12 +168,11 @@ export async function verifyElevatedAuthSession(req, res, next) {
     } catch (err) {
         console.log("Invalid or expired session token, redirecting to login");
         res.clearCookie("sessionToken");
-        return res.redirect("/login");
+        return res.redirect("/account/elevate");
     }
 
     if (decoded.stage !== "elevatedAuth") {
         console.log("Session token at invalid stage, redirecting to elevate");
-        res.clearCookie("sessionToken");
         return res.redirect("/account/elevate");
     }
     return next();

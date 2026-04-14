@@ -58,6 +58,9 @@ router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res,
 router.post("/mfa", verifyPreAuthSession, collectSessionData, async function (req, res, next) {
     if (req.body.totp === undefined || req.body.totp.length === 0)
         return res.redirect("/login/mfa?error=missingFields");
+    if (req.body.totp.length !== 6)
+        return res.redirect("/login/mfa?error=invalidCredentials");
+
 
     console.log(`Attemping to mfa with ${req.body.totp}...`);
 

@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico" />
     <link rel="stylesheet" href="../css/style.css" />
+    <script src="../js/errorMsg.js" defer></script>
   </head>
   <body>
     <header>
@@ -15,7 +16,7 @@
       <p>You must reauthenticate in order to update account values.</p>
       <p>Please enter your One Time Password to continue.</p>
 
-      <form method="post" action="/account/mfa" id="loginForm">
+      <form method="post" action="/account/elevate" id="loginForm">
         <label for="totp">One Time Password:</label>
         <input
           type="text"
@@ -25,6 +26,7 @@
         />
         <button id="loginBtn" type="submit">Log in</button>
       </form>
+      <p id="error-msg" class="error hidden"></p>
     </main>
   </body>
 </html>
