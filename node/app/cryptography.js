@@ -1,16 +1,6 @@
-import {
-    argon2,
-    randomBytes,
-    createCipheriv,
-    createDecipheriv,
-} from "node:crypto";
+import { argon2, randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
 
-import {
-    generateSecret,
-    generate,
-    verify as verifyOtp,
-    generateURI,
-} from "otplib";
+import { generateSecret, generate, verify as verifyOtp, generateURI } from "otplib";
 import jwt from "jsonwebtoken";
 
 const passwordPepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
@@ -189,10 +179,7 @@ function encrypt(secret) {
     try {
         const iv = randomBytes(12);
         const cipher = createCipheriv("aes-256-gcm", totpEncryptionKey, iv);
-        const encryptedSecret = Buffer.concat([
-            cipher.update(secret, "utf8"),
-            cipher.final(),
-        ]);
+        const encryptedSecret = Buffer.concat([cipher.update(secret, "utf8"), cipher.final()]);
         const authTag = cipher.getAuthTag();
 
         // Real production environment should include
@@ -243,10 +230,7 @@ function decrypt(encryptedSecret) {
     try {
         const decipher = createDecipheriv("aes-256-gcm", totpEncryptionKey, iv);
         decipher.setAuthTag(authTag);
-        const decryptedSecret = Buffer.concat([
-            decipher.update(cipher),
-            decipher.final(),
-        ]);
+        const decryptedSecret = Buffer.concat([decipher.update(cipher), decipher.final()]);
         return decryptedSecret.toString();
     } catch (err) {
         throw new InvalidTokenError(err);

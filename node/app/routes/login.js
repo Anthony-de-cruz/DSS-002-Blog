@@ -8,7 +8,6 @@ import {
     verifyPreAuthSession,
 } from "../authentication.js";
 import { verifyPassword, verifyTotpCode } from "../cryptography.js";
-import { User } from "../models/user.js";
 
 export const router = express.Router();
 
@@ -30,7 +29,7 @@ router.post("/", collectSessionData, async function (req, res, next) {
     ) {
         return res.redirect("/login?error=missingFields");
     }
-    console.log(`Attemping to log in as: ${req.body.username}...`);
+    console.log(`Attempting to log in as: ${req.body.username}...`);
 
     let user;
     try {
@@ -58,15 +57,9 @@ router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res,
 router.post("/mfa", verifyPreAuthSession, collectSessionData, async function (req, res, next) {
     if (req.body.totp === undefined || req.body.totp.length === 0)
         return res.redirect("/login/mfa?error=missingFields");
-    if (req.body.totp.length !== 6)
-        return res.redirect("/login/mfa?error=invalidCredentials");
+    if (req.body.totp.length !== 6) return res.redirect("/login/mfa?error=invalidCredentials");
 
-
-    console.log(`Attemping to mfa with ${req.body.totp}...`);
-
-    if ((!res.locals.user) instanceof User) {
-        return next(new Error("Failed to get user data."));
-    }
+    console.log(`Attempting MFA with ${req.body.totp}...`);
 
     try {
         if (!(await verifyTotpCode(req.body.totp, res.locals.user.totpSecret))) {

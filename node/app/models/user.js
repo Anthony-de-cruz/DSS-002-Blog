@@ -10,7 +10,7 @@ export class User {
      * @param {Buffer} passwordHash
      * @param {Buffer} totpSecret
      * @param {string} email
-     * @param {boolean} premium 
+     * @param {boolean} premium
      */
     constructor(username, passwordHash, totpSecret, email, premium) {
         this.username = username;
@@ -23,9 +23,9 @@ export class User {
     /**
      * Generate
      *
-     * @param {string} username - 
-     * @param {string} password - 
-     * @param {string} email - 
+     * @param {string} username -
+     * @param {string} password -
+     * @param {string} email -
      * @returns
      * @throws
      */
@@ -48,10 +48,7 @@ export class User {
      * @throws {DatabaseError} Failed to perform database query.
      */
     static async readFromDatabase(username) {
-        const result = await query(
-            "SELECT * FROM end_user WHERE username = $1;",
-            [username],
-        );
+        const result = await query("SELECT * FROM end_user WHERE username = $1;", [username]);
         if (result.rowCount != 1) {
             throw new Error(`User "${username}" not found in DB.`);
         }
@@ -76,13 +73,7 @@ export class User {
         await query(
             `INSERT INTO end_user (username, password_hash, totp_secret, email, premium)
         VALUES ($1, $2, $3, $4, $5)`,
-            [
-                this.username,
-                this.passwordHash,
-                this.totpSecret,
-                this.email,
-                this.premium,
-            ],
+            [this.username, this.passwordHash, this.totpSecret, this.email, this.premium],
         );
     }
 
@@ -94,10 +85,10 @@ export class User {
      * @throws {DatabaseError} Failed to perform database query.
      */
     async updateUsername(newUsername) {
-        await query(
-            "UPDATE end_user SET username = $1 WHERE username = $2",
-            [newUsername, this.username],
-        );
+        await query("UPDATE end_user SET username = $1 WHERE username = $2", [
+            newUsername,
+            this.username,
+        ]);
         this.username = newUsername;
     }
 
@@ -110,10 +101,10 @@ export class User {
      */
     async updatePassword(newPassword) {
         const newPasswordHash = await hashPassword(newPassword);
-        await query(
-            "UPDATE end_user SET password_hash = $1 WHERE username = $2",
-            [newPasswordHash, this.username],
-        );
+        await query("UPDATE end_user SET password_hash = $1 WHERE username = $2", [
+            newPasswordHash,
+            this.username,
+        ]);
         this.passwordHash = newPasswordHash;
     }
 
@@ -125,10 +116,10 @@ export class User {
      * @throws {DatabaseError} Failed to perform database query.
      */
     async updateEmail(newEmail) {
-        await query(
-            "UPDATE end_user SET email = $1 WHERE username = $2",
-            [newEmail, this.username],
-        );
+        await query("UPDATE end_user SET email = $1 WHERE username = $2", [
+            newEmail,
+            this.username,
+        ]);
         this.email = newEmail;
     }
 }
