@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Foodies 'R' Us Blog Login</title>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="../js/account.js" defer></script>
+    <script src="../js/errorMsg.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a href="../html/index.html"><img id="logo" src="../imgs/logo.png" /></a>
+      <h1>Welcome to Foodies 'R' Us!</h1>
+    </header>
+    <main>
+      <h2>Account</h2>
+      <h3>Username:</h3>
+      <p id="currentUsername"></p>
+      <h3>Email:</h3>
+      <p id="currentEmail"></p>
+      <form method="post" action="/account/edit/username" id="editUsernameForm">
+        <label for="username">New Username:</label>
+        <input
+          type="text"
+          id="editUsernameInput"
+          name="newUsername"
+          placeholder="Please enter your new username..."
+        />
+        <button id="editUsernameBtn" type="submit">Submit</button>
+      </form>
+      <form method="post" action="/account/edit/email" id="editEmailForm">
+        <label for="newEmailInput">New Email:</label>
+        <input
+          type="text"
+          id="newEmailInput"
+          name="newEmail"
+          placeholder="Please enter your new email..."
+        />
+        <button id="editEmailBtn" type="submit">Submit</button>
+      </form>
+      <form method="post" action="/account/edit/password" id="editPasswordForm">
+        <label for="editUsernameInput">New Password:</label>
+        <input
+          type="text"
+          id="editPasswordInput"
+          name="newPassword"
+          placeholder="Please enter your new password..."
+        />
+        <button id="editPasswordBtn" type="submit">Submit</button>
+      </form>
+      <p id="error-msg" class="error hidden"></p>
+    </main>
+  </body>
+</html>

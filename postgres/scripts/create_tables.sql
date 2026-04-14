@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS end_user (
     username      VARCHAR(20),
     password_hash BYTEA        NOT NULL UNIQUE CHECK (octet_length(password_hash) <= 48), -- TODO: Set these to = rather than <=.
-    totp_secret   BYTEA        NOT NULL UNIQUE CHECK (octet_length(totp_secret) <= 64),
+    totp_secret   BYTEA        NOT NULL UNIQUE CHECK (octet_length(totp_secret) > 12),
     email         VARCHAR(30)  NOT NULL UNIQUE,
     premium       BOOLEAN      DEFAULT FALSE NOT NULL,
     PRIMARY KEY (username)
@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS payment_method (
     expiry_month      INT         NOT NULL CHECK (expiry_month BETWEEN 1 AND 12),
     PRIMARY KEY (payment_method_id),
     FOREIGN KEY (username) REFERENCES end_user (username)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
@@ -28,6 +29,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     timestamp         TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (transaction_id),
     FOREIGN KEY (payment_method_id) REFERENCES payment_method (payment_method_id)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
@@ -39,5 +41,6 @@ CREATE TABLE IF NOT EXISTS post (
     timestamp          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (post_id),
     FOREIGN KEY (username) REFERENCES end_user (username)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );
