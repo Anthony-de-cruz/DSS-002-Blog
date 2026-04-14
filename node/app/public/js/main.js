@@ -6,4 +6,4 @@ async function renderUsername() {
     document.querySelector("#login_link").textContent = userData.username;
 }
 
-displayUsername();
+renderUsername();

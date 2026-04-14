@@ -18,26 +18,13 @@ const passwordHashingAlgo = "argon2id";
 
 const totpEncryptionKey = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
 
-import { generateKeyPairSync } from "crypto";
-
-const { publicKey, privateKey } = generateKeyPairSync("ec", {
-    namedCurve: "P-256",
-    publicKeyEncoding: { type: "spki", format: "pem" },
-    privateKeyEncoding: { type: "pkcs8", format: "pem" },
-});
-
-console.log("Generating ES256 Key Pair...");
-console.log(`${privateKey}\n${publicKey}`);
-console.log("DO NOT USE THIS IN PRODUCTION");
-
-// const sessionPublicKey = Buffer.from(process.env.SESSION_PUB_KEY, "hex");
-// const sessionPrivateKey = Buffer.from(process.env.SESSION_PRI_KEY, "hex");
-// const sessionPublicKey = process.env.SESSION_PUB_KEY
-// const sessionPrivateKey = process.env.SESSION_PRI_KEY
-
-const sessionPublicKey = publicKey;
-const sessionPrivateKey = privateKey;
+const sessionPublicKey = process.env.SESSION_PUB_KEY;
+const sessionPrivateKey = process.env.SESSION_PRI_KEY;
 const sessionSigningAlgo = "ES256";
+
+if (!sessionPublicKey || !sessionPrivateKey) {
+    throw new Error("SESSION_PUB_KEY and SESSION_PRI_KEY environment variables are required");
+}
 
 /**
  * Hash a plaintext password.
