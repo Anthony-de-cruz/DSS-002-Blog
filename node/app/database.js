@@ -14,6 +14,8 @@ const connectionPool = new pg.Pool({
 
 /**
  * Query the database, and log it to console.
+ * NOTE - ALL DB queries should go through this function and should be parameterised as such.
+ * Maintaining this approach will prevent SQL injection.
  *
  * @param {string} query - The SQL query.
  * @param {any[]} params - The query parameters.

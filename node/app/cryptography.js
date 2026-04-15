@@ -3,6 +3,16 @@ import { argon2, randomBytes, createCipheriv, createDecipheriv } from "node:cryp
 import { generateSecret, generate, verify as verifyOtp, generateURI } from "otplib";
 import jwt from "jsonwebtoken";
 
+if (
+    !process.env.PASSWORD_PEPPER ||
+    !process.env.TOTP_ENCRYPTION_KEY ||
+    !process.env.SESSION_PUB_KEY ||
+    !process.env.SESSION_PRI_KEY
+)
+    throw new Error(
+        "PASSWORD_PEPPER, TOTP_ENCRYPTION_KEY, SESSION_PUB_KEY, SESSION_PRI_KEY environment variables are required",
+    );
+
 const passwordPepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
 const passwordHashingAlgo = "argon2id";
 
@@ -11,10 +21,6 @@ const totpEncryptionKey = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
 const sessionPublicKey = process.env.SESSION_PUB_KEY;
 const sessionPrivateKey = process.env.SESSION_PRI_KEY;
 const sessionSigningAlgo = "ES256";
-
-if (!sessionPublicKey || !sessionPrivateKey) {
-    throw new Error("SESSION_PUB_KEY and SESSION_PRI_KEY environment variables are required");
-}
 
 /**
  * Hash a plaintext password.

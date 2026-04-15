@@ -6,8 +6,15 @@ import {
     initPreAuthSession,
     initPostAuthSession,
     verifyPreAuthSession,
-} from "../authentication.js";
+} from "../middleware/authentication.js";
 import { verifyPassword, verifyTotpCode } from "../cryptography.js";
+import {
+    requireFields,
+    requireMaxLength,
+    requirePattern,
+    requireTotp,
+} from "../middleware/validation.js";
+import { User } from "../models/user.js";
 
 export const router = express.Router();
 
@@ -18,33 +25,42 @@ router.get("/", collectSessionData, function (req, res, next) {
 });
 
 /* POST login. */
-router.post("/", collectSessionData, async function (req, res, next) {
-    if (res.locals.loggedIn) res.redirect("/");
-
-    if (
-        req.body.username === undefined ||
-        req.body.username.length === 0 ||
-        req.body.password === undefined ||
-        req.body.password.length === 0
-    ) {
+router.post(
+    "/",
+    collectSessionData,
+    // Apply basic form validation before authentication logic.
+    requireFields(["username", "password"], function (req, res) {
         return res.redirect("/login?error=missingFields");
-    }
-    console.log(`Attempting to log in as: ${req.body.username}...`);
-
-    let user;
-    try {
-        user = await User.readFromDatabase(req.body.username);
-    } catch (err) {
-        console.error(err);
+    }),
+    requireMaxLength("username", 20, function (req, res) {
         return res.redirect("/login?error=invalidCredentials");
-    }
-
-    if (!(await verifyPassword(req.body.password, user.passwordHash)))
+    }),
+    requireMaxLength("password", 128, function (req, res) {
         return res.redirect("/login?error=invalidCredentials");
+    }),
+    requirePattern("username", /^[A-Za-z0-9_]+$/, function (req, res) {
+        return res.redirect("/login?error=invalidCredentials");
+    }),
+    async function (req, res, next) {
+        if (res.locals.loggedIn) res.redirect("/");
 
-    await initPreAuthSession(res, user.username);
-    res.redirect("/login/mfa");
-});
+        console.log(`Attempting to log in as: ${req.body.username}...`);
+
+        let user;
+        try {
+            user = await User.readFromDatabase(req.body.username);
+        } catch (err) {
+            console.error(err);
+            return res.redirect("/login?error=invalidCredentials");
+        }
+
+        if (!(await verifyPassword(req.body.password, user.passwordHash)))
+            return res.redirect("/login?error=invalidCredentials");
+
+        await initPreAuthSession(res, user.username);
+        return res.redirect("/login/mfa");
+    },
+);
 
 /* GET login mfa. */
 router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
@@ -54,21 +70,26 @@ router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res,
 });
 
 /* POST login mfa. */
-router.post("/mfa", verifyPreAuthSession, collectSessionData, async function (req, res, next) {
-    if (req.body.totp === undefined || req.body.totp.length === 0)
-        return res.redirect("/login/mfa?error=missingFields");
-    if (req.body.totp.length !== 6) return res.redirect("/login/mfa?error=invalidCredentials");
+router.post(
+    "/mfa",
+    verifyPreAuthSession,
+    collectSessionData,
+    // Keep MFA input checks simple and local to the route.
+    requireTotp("totp", function (req, res) {
+        return res.redirect("/login/mfa?error=invalidCredentials");
+    }),
+    async function (req, res, next) {
+        console.log(`Attempting MFA with ${req.body.totp}...`);
 
-    console.log(`Attempting MFA with ${req.body.totp}...`);
-
-    try {
-        if (!(await verifyTotpCode(req.body.totp, res.locals.user.totpSecret))) {
-            return res.redirect("/login/mfa?error=invalidCredentials");
+        try {
+            if (!(await verifyTotpCode(req.body.totp, res.locals.user.totpSecret))) {
+                return res.redirect("/login/mfa?error=invalidCredentials");
+            }
+        } catch (err) {
+            return next(err);
         }
-    } catch (err) {
-        return next(err);
-    }
 
-    await initPostAuthSession(res, res.locals.user.username);
-    res.redirect("/");
-});
+        await initPostAuthSession(res, res.locals.user.username);
+        return res.redirect("/");
+    },
+);

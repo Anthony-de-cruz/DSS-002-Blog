@@ -1,7 +1,7 @@
 import express from "express";
 
-import { generateSessionToken, decodeSessionToken } from "./cryptography.js";
-import { User } from "./models/user.js";
+import { generateSessionToken, decodeSessionToken } from "../cryptography.js";
+import { User } from "../models/user.js";
 
 /**
  * Begin a new partially logged in user session.
@@ -24,6 +24,35 @@ export async function initPreAuthSession(res, username) {
         sameSite: "strict", // Prevents CSRF.
     });
     console.log(`Assigning pre-auth session ${token} to user: "${username}"`);
+}
+
+/**
+ * Begin a new pending registration session.
+ *
+ * @param {express.Response} res
+ * @param {{ username: string, email: string, passwordHash: Buffer, totpSecret: Buffer }} user
+ * @throws {CryptographyError} Signing operation failed.
+ * @returns {Promise<void>}
+ */
+export async function initRegisterSession(res, user) {
+    const token = await generateSessionToken(
+        {
+            username: user.username,
+            email: user.email,
+            passwordHash: user.passwordHash.toString("base64"),
+            totpSecret: user.totpSecret.toString("base64"),
+            stage: "registerMfa",
+        },
+        300, // Token expires in 5 minutes.
+    );
+    res.cookie("sessionToken", token, {
+        path: "/",
+        expires: new Date(Date.now() + 5 * 60 * 1000),
+        secure: true,
+        httpOnly: true,
+        sameSite: "strict",
+    });
+    console.log(`Assigning register session to user: "${user.username}"`);
 }
 
 /**
@@ -146,6 +175,40 @@ export async function verifyPostAuthSession(req, res, next) {
 }
 
 /**
+ * Put this middleware in front of registration MFA routes.
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ * @returns {Promise<void>}
+ */
+export async function verifyRegisterSession(req, res, next) {
+    console.log("Verifying register session...");
+
+    if (!req.cookies.sessionToken) {
+        console.log("No token found, redirecting to register");
+        return res.redirect("/register?error=setupExpired");
+    }
+
+    let decoded;
+    try {
+        decoded = await decodeSessionToken(req.cookies.sessionToken);
+    } catch (err) {
+        console.log("Invalid or expired session token, redirecting to register");
+        res.clearCookie("sessionToken");
+        return res.redirect("/register?error=setupExpired");
+    }
+
+    if (decoded.stage !== "registerMfa") {
+        console.log("Session token at invalid stage, redirecting to register");
+        res.clearCookie("sessionToken");
+        return res.redirect("/register?error=setupExpired");
+    }
+
+    return next();
+}
+
+/**
  * Put this middleware in front of any GET requests for protected web pages
  * that a user must reauthenticate in to use.
  *
@@ -193,6 +256,7 @@ export async function collectSessionData(req, res, next) {
     if (!req.cookies.sessionToken) {
         console.log("No session found");
         res.locals.authenticated = false;
+        res.locals.loggedIn = false;
         res.locals.user = null;
         return next();
     }
@@ -204,19 +268,71 @@ export async function collectSessionData(req, res, next) {
         console.log("Invalid or expired session token");
         res.clearCookie("sessionToken");
         res.locals.authenticated = false;
+        res.locals.loggedIn = false;
         res.locals.user = null;
         return next();
     }
 
-    res.locals.authenticated = decoded.stage === "postAuth";
+    res.locals.authenticated = decoded.stage === "postAuth" || decoded.stage === "elevatedAuth";
+    res.locals.loggedIn = res.locals.authenticated;
 
     try {
         res.locals.user = await User.readFromDatabase(decoded.username);
     } catch (err) {
         console.log("Failed to collect user data");
         res.locals.authenticated = false;
+        res.locals.loggedIn = false;
         res.locals.user = null;
         return next();
     }
+    return next();
+}
+
+/**
+ * Put this middleware in front of registration MFA routes
+ * that need the pending user data from the session.
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
+ * @returns {Promise<void>}
+ */
+export async function collectRegisterData(req, res, next) {
+    console.log("Collecting register session data...");
+
+    res.locals.pendingUser = null;
+
+    if (!req.cookies.sessionToken) {
+        return next();
+    }
+
+    let decoded;
+    try {
+        decoded = await decodeSessionToken(req.cookies.sessionToken);
+    } catch (err) {
+        res.clearCookie("sessionToken");
+        return next();
+    }
+
+    if (decoded.stage !== "registerMfa") {
+        return next();
+    }
+
+    if (
+        typeof decoded.username !== "string" ||
+        typeof decoded.email !== "string" ||
+        typeof decoded.passwordHash !== "string" ||
+        typeof decoded.totpSecret !== "string"
+    ) {
+        res.clearCookie("sessionToken");
+        return next();
+    }
+
+    res.locals.pendingUser = {
+        username: decoded.username,
+        email: decoded.email,
+        passwordHash: Buffer.from(decoded.passwordHash, "base64"),
+        totpSecret: Buffer.from(decoded.totpSecret, "base64"),
+    };
     return next();
 }

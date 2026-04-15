@@ -1,6 +1,6 @@
 import express from "express";
 
-import { collectSessionData, verifyPostAuthSession } from "../authentication.js";
+import { collectSessionData, verifyPostAuthSession } from "../middleware/authentication.js";
 import { User } from "../models/user.js";
 
 export const router = express.Router();
