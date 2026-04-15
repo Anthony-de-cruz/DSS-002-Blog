@@ -6,7 +6,7 @@ import {
     initPreAuthSession,
     initPostAuthSession,
     verifyPreAuthSession,
-} from "../authentication.js";
+} from "../middleware/authentication.js";
 import { verifyPassword, verifyTotpCode } from "../cryptography.js";
 import {
     requireFields,
