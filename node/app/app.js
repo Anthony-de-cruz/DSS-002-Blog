@@ -8,6 +8,7 @@ import { testConnection } from "./database.js";
 import { router as indexRouter } from "./routes/index.js";
 import { router as loginRouter } from "./routes/login.js";
 import { router as logoutRouter } from "./routes/logout.js";
+import { router as registerRouter } from "./routes/register.js";
 import { router as accountRouter } from "./routes/account.js";
 import { router as apiRouter } from "./routes/api.js";
 
@@ -25,6 +26,7 @@ app.use(morgan("[:date[clf]] :method :url :status :response-time ms"));
 app.use(express.static(path.join(import.meta.dirname, "public")));
 app.use("/", indexRouter);
 app.use("/login", loginRouter);
+app.use("/register", registerRouter);
 app.use("/logout", logoutRouter);
 app.use("/account", accountRouter);
 app.use("/api", apiRouter);
