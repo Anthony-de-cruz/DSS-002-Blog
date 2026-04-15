@@ -1,7 +1,7 @@
 import express from "express";
 
-import { generateSessionToken, decodeSessionToken } from "./cryptography.js";
-import { User } from "./models/user.js";
+import { generateSessionToken, decodeSessionToken } from "../cryptography.js";
+import { User } from "../models/user.js";
 
 /**
  * Begin a new partially logged in user session.
