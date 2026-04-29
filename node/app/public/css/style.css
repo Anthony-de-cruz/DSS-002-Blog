@@ -1,370 +1,358 @@
 html {
-    background-color: white;
+  background-color: #0b1220;
 }
 
 body {
-    background-color: #f6f7ef;
-    color: black;
-    font-family: sans-serif, Arial;
-    line-height: 1.5;
-    font-size: 16px;
+  background-color: #eaf2ff;
+  color: #0f172a;
+  font-family: sans-serif, Arial;
+  line-height: 1.5;
+  font-size: 16px;
 }
 
 header {
-    background-color: rgb(255, 73, 0);
-    text-align: center;
-    height: 150px;
-    color: #000000;
+  background: linear-gradient(90deg, #0f172a, #0b3b8c);
+  text-align: center;
+  height: 150px;
+  color: #ffffff;
 }
 
 header > h1 {
-    font-size: 28pt;
-    display: inline-block;
-    line-height: 200%;
-    padding: 25px;
+  font-size: 28pt;
+  display: inline-block;
+  line-height: 200%;
+  padding: 25px;
+  color: #ffffff;
 }
 
 #logo {
-    width: 150px;
-    height: 150px;
-    float: left;
+  width: 150px;
+  height: 150px;
+  float: left;
+  object-fit: contain;
 }
 
 #login_link {
-    color: black;
-    background-color: #eda079;
-    padding: 7px;
-    min-width: 100px;
-    border-radius: 3px;
-    border: 2px solid #9e3603;
-    text-transform: uppercase;
-    font-weight: bold;
-    float: left;
-    text-align: center;
-    margin: 30px 10px;
-    transition: background 300ms ease-in-out;
+  color: #ffffff;
+  background-color: #2563eb;
+  padding: 7px;
+  min-width: 100px;
+  border-radius: 6px;
+  border: 2px solid #1d4ed8;
+  text-transform: uppercase;
+  font-weight: bold;
+  float: left;
+  text-align: center;
+  margin: 30px 10px;
+  transition: background 300ms ease-in-out;
 }
 
 .link_btn {
-    color: black;
-    background-color: #f56d36;
-    padding: 7px;
-    min-width: 100px;
-    border-radius: 3px;
-    border: 2px solid #c74402;
-    text-transform: uppercase;
-    font-weight: bold;
-    text-align: center;
-    margin: 30px 10px;
-    cursor: pointer;
-    transition: background 300ms ease-in-out;
-    text-decoration: none;
+  color: #ffffff;
+  background-color: #2563eb;
+  padding: 7px;
+  min-width: 100px;
+  border-radius: 6px;
+  border: 2px solid #1d4ed8;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  margin: 30px 10px;
+  cursor: pointer;
+  transition: background 300ms ease-in-out;
+  text-decoration: none;
 }
 
-.link_btn:hover {
-    background-color: #f2875c;
+.link_btn:hover,
+#login_link:hover {
+  background-color: #3b82f6;
 }
 
 .error {
-    color: red;
+  color: #dc2626;
 }
 
 #login_form {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 #login_btn {
-    width: 100px;
-    color: black;
-    background-color: #eda079;
-    font-size: 18px;
-    font-weight: bold;
-    border: black solid 1px;
-    border-radius: 5px;
-    margin-top: 10px;
-    transition: background 300ms ease-in-out;
+  width: 100px;
+  color: #ffffff;
+  background-color: #2563eb;
+  font-size: 18px;
+  font-weight: bold;
+  border: #1e3a8a solid 1px;
+  border-radius: 6px;
+  margin-top: 10px;
+  transition: background 300ms ease-in-out;
 }
 
 #login_btn:hover {
-    background-color: #f2875c;
+  background-color: #3b82f6;
 }
 
 label {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 input {
-    width: 200px;
-    height: 25px;
-    display: block;
-    font-size: 14px;
+  width: 200px;
+  height: 25px;
+  display: block;
+  font-size: 14px;
 }
 
 nav ul {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 nav ul li a {
-    text-decoration: none;
-    padding: 5px;
+  text-decoration: none;
+  padding: 5px;
 }
 
-a:link {
-    color: black;
-}
-
+a:link,
 a:visited {
-    color: black;
+  color: #0f172a;
 }
 
 nav ul li a:hover {
-    color: #fff;
-    background-color: #d2a868;
+  color: #ffffff;
+  background-color: #2563eb;
+  border-radius: 4px;
 }
 
 nav {
-    text-align: center;
-    padding: 8px;
+  text-align: center;
+  padding: 8px;
 }
 
 nav ul li {
-    display: inline;
-    padding: 25px;
+  display: inline;
+  padding: 25px;
 }
 
 .active a {
-    border-bottom: 3px solid #32312f;
+  border-bottom: 3px solid #1d4ed8;
 }
 
 main {
-    margin: 10px 20%;
-    padding: 16px;
-    border: 2px solid #e6b4a1;
-    border-radius: 20px;
-    font-size: 18px;
+  margin: 10px 20%;
+  padding: 16px;
+  border: 2px solid #93c5fd;
+  border-radius: 20px;
+  font-size: 18px;
+  background-color: #f8fbff;
 }
 
 section {
-    padding: 20px 0px;
-    margin: 10px auto;
-    background-color: #f7a98b;
-    overflow: hidden;
-    border-radius: 10px;
-    margin: 5px;
-    text-align: center;
+  padding: 20px 0px;
+  margin: 10px auto;
+  background-color: #dbeafe;
+  overflow: hidden;
+  border-radius: 10px;
+  margin: 5px;
+  text-align: center;
 }
 
 .user_menu {
-    overflow: hidden;
-    background-color: #333;
-    font-family: Arial;
+  overflow: hidden;
+  background-color: #0f172a;
+  font-family: Arial;
 }
 
 .user_menu a {
-    float: left;
-    font-size: 16px;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
 }
 
 .dropdown {
-    float: right;
-    margin: 30px 10px;
-    overflow: hidden;
+  float: right;
+  margin: 30px 10px;
+  overflow: hidden;
 }
 
 .dropdown #login_link {
-    padding: 14px 16px;
-    font-family: inherit;
-    margin: 0;
+  padding: 14px 16px;
+  font-family: inherit;
+  margin: 0;
 }
 
 .user_menu a:hover,
 .dropdown:hover #login_link {
-    background-color: #f2875c;
+  background-color: #3b82f6;
 }
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    top: 80px;
-    right: 20px;
-    background-color: #f9f9f9;
-    min-width: 150px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+  display: none;
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  background-color: #eff6ff;
+  min-width: 150px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }
 
 .dropdown-content a {
-    float: none;
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
+  float: none;
+  color: #0f172a;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
 }
 
 .dropdown-content a:hover {
-    background-color: #ddd;
+  background-color: #bfdbfe;
 }
 
 .dropdown:hover .dropdown-content {
-    display: block;
+  display: block;
 }
 
 .dropdown-active {
-    font-weight: bold;
-    background-color: lightgray;
+  font-weight: bold;
+  background-color: #bfdbfe;
 }
 
 /*************** POST STYLING ***************/
-
 .post {
-    background-color: white;
-    border: 2px solid #c74402;
-    border-radius: 10px;
-    margin: 10px;
-    text-align: left;
+  background-color: #ffffff;
+  border: 2px solid #2563eb;
+  border-radius: 10px;
+  margin: 10px;
+  text-align: left;
 }
 
 .search_bar {
-    width: 750px;
-    height: 30px;
-    display: inline-block;
-    font-size: 14px;
-    /* marg in: 20px; */
-    border-radius: 3px;
-    border: 2px solid #c74402;
-    font-size: 20px;
+  width: 750px;
+  height: 30px;
+  display: inline-block;
+  border-radius: 6px;
+  border: 2px solid #2563eb;
+  font-size: 20px;
 }
 
 .search_bar:hover {
-    background-color: #ddd;
+  background-color: #dbeafe;
 }
 
 .fa.fa-search {
-    font-size: 28px;
+  font-size: 28px;
 }
 
 h3 {
-    font-size: 25px;
+  font-size: 25px;
 }
 
 h5:first-of-type {
-    font-style: italic;
+  font-style: italic;
 }
 
 .btnContainer {
-    margin: 5px;
+  margin: 5px;
 }
 
 /*************** FORM STYLING ***************/
-
-label {
-    font-weight: bold;
-}
-
 #postForm input {
-    width: 500px;
-    height: 25px;
-    display: block;
-    font-size: 16px;
+  width: 500px;
+  height: 25px;
+  display: block;
+  font-size: 16px;
 }
 
 #postForm textarea {
-    resize: none;
-    width: 500px;
-    height: 250px;
-    display: block;
-    font-size: 16px;
-    font-family: Arial, Helvetica, sans-serif;
+  resize: none;
+  width: 500px;
+  height: 250px;
+  display: block;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 main button {
-    margin: 5px;
-    width: 100px;
-    color: black;
-    background-color: #f56d36;
-    font-size: 18px;
-    font-weight: bold;
-    border: black solid 1px;
-    border-radius: 5px;
-    margin-top: 10px;
-    text-transform: uppercase;
-    transition: background 300ms ease-in-out;
+  margin: 5px;
+  width: 100px;
+  color: #ffffff;
+  background-color: #2563eb;
+  font-size: 18px;
+  font-weight: bold;
+  border: #1e3a8a solid 1px;
+  border-radius: 6px;
+  margin-top: 10px;
+  text-transform: uppercase;
+  transition: background 300ms ease-in-out;
 }
 
 main button:hover {
-    background-color: #f2875c;
+  background-color: #3b82f6;
 }
 
 #postForm {
-    text-align: left;
-    font-size: 20px;
-}
-
-#postForm input,
-#postForm textarea {
-    font-size: 20px;
-    border-radius: 5px;
-}
-
-#postForm {
-    display: flex;
+  text-align: left;
+  font-size: 20px;
+  display: flex;
 }
 
 fieldset {
-    display: flex;
-    flex-wrap: wrap;
-    margin: auto 2%;
-    width: 100%;
-    border: solid 3px #c74402;
-    border-radius: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto 2%;
+  width: 100%;
+  border: solid 3px #2563eb;
+  border-radius: 8px;
 }
 
 legend {
-    padding: 5px;
-    font-size: larger;
-    word-spacing: 4px;
+  padding: 5px;
+  font-size: larger;
+  word-spacing: 4px;
+  color: #0f172a;
 }
 
 #postForm input,
 #postForm textarea {
-    display: block;
-    width: 95%;
-    padding: 10px;
-    margin: 0 5px;
-    border: 2px solid #c74402;
+  display: block;
+  width: 95%;
+  padding: 10px;
+  margin: 0 5px;
+  border: 2px solid #2563eb;
+  border-radius: 6px;
+  font-size: 20px;
 }
 
 #postForm input:hover,
 #postForm textarea:hover {
-    background-color: #ddd;
+  background-color: #eff6ff;
 }
 
 #postForm label {
-    display: block;
-    width: 100%;
-    margin: 1%;
+  display: block;
+  width: 100%;
+  margin: 1%;
 }
 
 #postForm button[type="submit"] {
-    margin: 2% 40%;
-    min-width: 150px;
-    border: 2px solid #c74402;
-    border-radius: 10px;
-    cursor: pointer;
-    background-color: #f56d36;
-    color: black;
-    padding: 6px 10px;
-    font-weight: bold;
-    font-size: 20px;
-    text-transform: uppercase;
-    transition: background 300ms ease-in-out;
+  margin: 2% 40%;
+  min-width: 150px;
+  border: 2px solid #1d4ed8;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 6px 10px;
+  font-weight: bold;
+  font-size: 20px;
+  text-transform: uppercase;
+  transition: background 300ms ease-in-out;
 }
 
 #postForm button[type="submit"]:hover {
-    background-color: #f2875c;
+  background-color: #3b82f6;
 }
