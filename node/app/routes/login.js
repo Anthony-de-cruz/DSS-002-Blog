@@ -18,6 +18,74 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
+/*login limit start*/
+// Per-username: max 3 failed login attempts within RATE_WINDOW_MS.
+// Per-IP: max 5 failed login attempts within RATE_WINDOW_MS.
+
+const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS_PER_USER = 3;
+const MAX_ATTEMPTS_PER_IP = 5;
+
+const userFailures = new Map();
+const ipFailures = new Map();
+
+function pruneTimestamps(arr) {
+    const cutoff = Date.now() - RATE_WINDOW_MS;
+    while (arr.length && arr[0] < cutoff) arr.shift();
+    return arr;
+}
+
+function countFailures(map, key) {
+    if (!key) return 0;
+    const arr = map.get(key);
+    if (!arr) return 0;
+    return pruneTimestamps(arr).length;
+}
+
+function recordFailure(map, key) {
+    if (!key) return;
+    const arr = map.get(key) || [];
+    pruneTimestamps(arr);
+    arr.push(Date.now());
+    map.set(key, arr);
+}
+
+function clearFailures(map, key) {
+    if (key) map.delete(key);
+}
+
+function loginRateLimit(req, res, next) {
+    const ipKey = req.ip || req.socket?.remoteAddress || "unknown";
+    const usernameKey =
+        typeof req.body?.username === "string" && req.body.username.trim().length > 0
+            ? req.body.username.trim().toLowerCase()
+            : null;
+
+    const userCount = countFailures(userFailures, usernameKey);
+    const ipCount = countFailures(ipFailures, ipKey);
+
+    if (userCount >= MAX_ATTEMPTS_PER_USER || ipCount >= MAX_ATTEMPTS_PER_IP) {
+        console.log(
+            `Rate limit hit on /login (user=${usernameKey ?? "<none>"} count=${userCount}, ip=${ipKey} count=${ipCount})`,
+        );
+        return res.redirect("/login?error=tooManyAttempts");
+    }
+
+    // Expose recorders to the route handler so it can register the outcome.
+    res.locals.loginLimiter = {
+        recordFailure: () => {
+            recordFailure(userFailures, usernameKey);
+            recordFailure(ipFailures, ipKey);
+        },
+        clearUserOnSuccess: () => {
+            clearFailures(userFailures, usernameKey);
+        },
+    };
+
+    return next();
+}
+
+
 /* GET login. */
 router.get("/", collectSessionData, function (req, res, next) {
     if (res.locals.loggedIn) return res.redirect("/");
@@ -61,6 +129,21 @@ router.post(
         return res.redirect("/login/mfa");
     },
 );
+
+/*Delay Login Timings. */
+        const LOGIN_FAILURE_MIN_MS = 1000; // pad failed attempts to fix time
+        const loginStart = Date.now();
+        const failInvalidCredentials = async () => {
+            // Count this attempt against the per-user / per-IP rate limit.
+            res.locals.loginLimiter?.recordFailure();
+            const elapsed = Date.now() - loginStart;
+            const remaining = LOGIN_FAILURE_MIN_MS - elapsed;
+            if (remaining > 0) {
+                await new Promise((resolve) => setTimeout(resolve, remaining));
+            }
+            return res.redirect("/login?error=invalidCredentials");
+        };
+
 
 /* GET login mfa. */
 router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
