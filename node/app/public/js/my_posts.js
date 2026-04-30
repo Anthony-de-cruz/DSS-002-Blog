@@ -1,13 +1,13 @@
 // Function to load posts made by user who is currently logged in
 async function loadPosts() {
 
-    // Load posts data
-    const post_response = await fetch("../json/posts.json");
+    // Load posts data 
+    const post_response = await fetch("/api/posts");
     const post_data = await post_response.json();
 
     // Load login data
-    const login_response = await fetch("../json/login_attempt.json");
-    const login_data = await login_response.json();
+    const user_response = await fetch("/api/user");
+    const user_data = await user_response.json();
 
     // Remove current posts
     let postList = document.getElementById('myPosts');
@@ -24,11 +24,11 @@ async function loadPosts() {
         let author = post_data[i].username;
 
         // Check usernames match on each post
-        if(author === login_data.username) {
+        if(author === user_data.username) {
             let timestamp = post_data[i].timestamp;
             let title = post_data[i].title;
             let content = post_data[i].content;
-            let postId = post_data[i].postId;
+            let postId = post_data[i].id;
 
             let postContainer = document.createElement('article');
             postContainer.classList.add("post");
@@ -38,7 +38,7 @@ async function loadPosts() {
             let postIdContainer = document.createElement("h6");
             postIdContainer.textContent = postId;
             postIdContainer.hidden = true;
-            postId.id = "postId";
+            postIdContainer.id = "postId";
             postContainer.appendChild(postIdContainer);
 
             let img = document.createElement('img');
@@ -75,7 +75,7 @@ async function loadPosts() {
             delBtn.addEventListener("click", deletePost);
             postContainer.appendChild(delBtn);
 
-            postList.insertBefore(postContainer, document.querySelectorAll("article")[0]);
+            postList.appendChild(postContainer);
         }
     }
 }
