@@ -38,6 +38,26 @@ export class Post {
         return new Post(result.rows[0].post_id, username, title, content, result.rows[0].timestamp);
     }
 
+    static async readAllFromDatabase() {
+    const result = await query(
+        `SELECT post_id, username, title, content, timestamp
+         FROM post
+         ORDER BY timestamp DESC;`,
+        [],
+    );
+
+    return result.rows.map(
+        (postData) =>
+            new Post(
+                postData.post_id,
+                postData.username,
+                postData.title,
+                postData.content,
+                postData.timestamp,
+            ),
+        );
+    }
+
     /**
      * Build an instance from a prexisting DB record.
      *
