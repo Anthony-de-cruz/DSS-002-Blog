@@ -20,8 +20,8 @@ export const router = express.Router();
 
 /* GET login. */
 router.get("/", collectSessionData, function (req, res, next) {
-    if (res.locals.loggedIn) res.redirect("/");
-    res.sendFile(path.join(import.meta.dirname, "../public/html/login.html"));
+    if (res.locals.loggedIn) return res.redirect("/");
+    return res.sendFile(path.join(import.meta.dirname, "../public/html/login.html"));
 });
 
 /* POST login. */
@@ -42,7 +42,7 @@ router.post(
         return res.redirect("/login?error=invalidCredentials");
     }),
     async function (req, res, next) {
-        if (res.locals.loggedIn) res.redirect("/");
+        if (res.locals.loggedIn) return res.redirect("/");
 
         console.log(`Attempting to log in as: ${req.body.username}...`);
 
@@ -64,9 +64,9 @@ router.post(
 
 /* GET login mfa. */
 router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
-    if (res.locals.loggedIn) res.redirect("/");
+    if (res.locals.loggedIn) return res.redirect("/");
 
-    res.sendFile(path.join(import.meta.dirname, "../public/html/login_mfa.html"));
+    return res.sendFile(path.join(import.meta.dirname, "../public/html/login_mfa.html"));
 });
 
 /* POST login mfa. */
