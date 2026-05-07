@@ -122,4 +122,18 @@ export class User {
         ]);
         this.email = newEmail;
     }
+ async updateEmail(newEmail) {
+    await query("UPDATE end_user SET email = $1 WHERE username = $2", [
+        newEmail,
+        this.username,
+    ]);
+    this.email = newEmail;
+}
+
+async upgradeToPremium() {
+    await query("UPDATE end_user SET premium = TRUE WHERE username = $1;", [
+        this.username,
+    ]);
+    this.premium = true;
+}
 }

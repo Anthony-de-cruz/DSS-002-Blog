@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title> Cyber Security Safety Blog Login</title>
+        <title>Cyber Security Safety Blog Account</title>
         <meta charset="utf-8">
         <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico">
         <link rel="stylesheet" href="../css/style.css">
@@ -9,15 +9,43 @@
     </head>
     <body>
         <header>
-            <a href="../html/index.html"><img id="logo" src="../imgs/lock.png" /></a>
+            <a href="../html/index.html"><img id="logo" src="../imgs/lock.png" alt="Logo" /></a>
             <h1>Welcome to Cyber Security Safety!</h1>
         </header>
+
         <main>
-        <h2>Account</h2>
-        <h2>Username:</h2>
-        <p id="currentUsername"></p>
-        <h2>Email:</h2>
-        <p id="currentEmail"></p>
-        <a class="link_btn" href="/account/edit">Edit</a>
+            <h2>Account</h2>
+
+            <h2>Username:</h2>
+            <p id="currentUsername"></p>
+
+            <h2>Email:</h2>
+            <p id="currentEmail"></p>
+
+            <h2>Membership:</h2>
+            <p id="premiumStatus"></p>
+
+            <h2>Payment Details</h2>
+            <form id="paymentForm">
+                <label for="cardNumber">Card Number:</label>
+                <input type="text" id="cardNumber" name="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" required>
+
+                <label for="expiryMonth">Expiry Month:</label>
+                <input type="number" id="expiryMonth" name="expiryMonth" min="1" max="12" placeholder="12" required>
+
+                <label for="expiryYear">Expiry Year:</label>
+                <input type="number" id="expiryYear" name="expiryYear" min="2026" max="2050" placeholder="2030" required>
+
+                <button type="submit">Save Payment Method</button>
+            </form>
+
+            <p id="paymentMessage"></p>
+
+            <button id="upgradeBtn" type="button">Upgrade to Premium</button>
+            <p id="upgradeMessage"></p>
+
+            <br />
+            <a class="link_btn" href="/account/edit">Edit</a>
+        </main>
     </body>
 </html>

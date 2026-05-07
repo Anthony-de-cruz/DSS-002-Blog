@@ -1,9 +1,20 @@
-/**
- * Render the username in the header.
- */
 async function renderUsername() {
-    const userData = await (await fetch("/api/user")).json();
-    document.querySelector("#login_link").textContent = userData.username;
+    try {
+        const response = await fetch("/api/user");
+
+        if (!response.ok) {
+            return;
+        }
+
+        const userData = await response.json();
+
+        const loginText = document.querySelector("#loginText");
+        if (loginText) {
+            loginText.textContent = userData.username;
+        }
+    } catch (err) {
+        console.error("Failed to load user data:", err);
+    }
 }
 
-renderUsername();
+document.addEventListener("DOMContentLoaded", renderUsername);
