@@ -25,6 +25,15 @@ header > h1 {
   color: #ffffff;
 }
 
+#admin_banner {
+  color: red;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 24px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
 #logo {
   width: 150px;
   height: 150px;
@@ -100,6 +109,16 @@ input {
   width: 200px;
   height: 25px;
   display: block;
+  font-size: 14px;
+}
+
+#totp-uri {
+  width: 100%;
+  max-width: 640px;
+  box-sizing: border-box;
+  display: block;
+  margin: 5px 0 15px;
+  font-family: monospace;
   font-size: 14px;
 }
 

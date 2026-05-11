@@ -11,6 +11,7 @@ import { router as logoutRouter } from "./routes/logout.js";
 import { router as registerRouter } from "./routes/register.js";
 import { router as accountRouter } from "./routes/account.js";
 import { router as apiRouter } from "./routes/api.js";
+import { router as postsRouter } from "./routes/posts.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/login", loginRouter);
 app.use("/register", registerRouter);
 app.use("/logout", logoutRouter);
 app.use("/account", accountRouter);
+app.use("/posts", postsRouter);
 app.use("/api", apiRouter);
 
 // Error handling middleware.
@@ -40,76 +42,6 @@ app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).sendFile(path.join(import.meta.dirname, "public", "html", "500.html"));
 });
-
-// // Make a post POST request
-// app.post("/makepost", function (req, res) {
-//     // Read in current posts
-//     const json = fs.readFileSync(__dirname + "/public/json/posts.json");
-//     var posts = JSON.parse(json);
-//
-//     // Get the current date
-//     let curDate = new Date();
-//     curDate = curDate.toLocaleString("en-GB");
-//
-//     // Find post with the highest ID
-//     let maxId = 0;
-//     for (let i = 0; i < posts.length; i++) {
-//         if (posts[i].postId > maxId) {
-//             maxId = posts[i].postId;
-//         }
-//     }
-//
-//     // Initialise ID for a new post
-//     let newId = 0;
-//
-//     // If postId is empty, user is making a new post
-//     if (req.body.postId == "") {
-//         newId = maxId + 1;
-//     } else {
-//         // If postID != empty, user is editing a post
-//         newId = req.body.postId;
-//
-//         // Find post with the matching ID, delete it from posts so user can submit their new version
-//         let index = posts.findIndex((item) => item.postId == newId);
-//         posts.splice(index, 1);
-//     }
-//
-//     // Add post to posts.json
-//     posts.push({
-//         username: currentUser,
-//         timestamp: curDate,
-//         postId: newId,
-//         title: req.body.title_field,
-//         content: req.body.content_field,
-//     });
-//
-//     fs.writeFileSync(
-//         __dirname + "/public/json/posts.json",
-//         JSON.stringify(posts),
-//     );
-//
-//     // Redirect back to my_posts.html
-//     res.sendFile(__dirname + "/public/html/my_posts.html");
-// });
-//
-// // Delete a post POST request
-// app.post("/deletepost", (req, res) => {
-//     // Read in current posts
-//     const json = fs.readFileSync(__dirname + "/public/json/posts.json");
-//     var posts = JSON.parse(json);
-//
-//     // Find post with matching ID and delete it
-//     let index = posts.findIndex((item) => item.postId == req.body.postId);
-//     posts.splice(index, 1);
-//
-//     // Update posts.json
-//     fs.writeFileSync(
-//         __dirname + "/public/json/posts.json",
-//         JSON.stringify(posts),
-//     );
-//
-//     res.sendFile(__dirname + "/public/html/my_posts.html");
-// });
 
 /// Runtime setup.
 (async () => {
