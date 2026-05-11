@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS end_user (
     totp_secret   BYTEA        NOT NULL UNIQUE CHECK (octet_length(totp_secret) > 12),
     email         VARCHAR(30)  NOT NULL UNIQUE,
     premium       BOOLEAN      DEFAULT FALSE NOT NULL,
+    admin         BOOLEAN      DEFAULT FALSE NOT NULL,
     PRIMARY KEY (username)
 );
 

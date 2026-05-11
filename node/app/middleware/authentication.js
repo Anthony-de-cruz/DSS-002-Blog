@@ -43,7 +43,7 @@ export async function initRegisterSession(res, user) {
             totpSecret: user.totpSecret.toString("base64"),
             stage: "registerMfa",
         },
-        300, // Token expires in 5 minutes.
+        900, // Token expires in 15 minutes.
     );
     res.cookie("sessionToken", token, {
         path: "/",

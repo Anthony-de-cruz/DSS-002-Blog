@@ -11,13 +11,15 @@ export class User {
      * @param {Buffer} totpSecret
      * @param {string} email
      * @param {boolean} premium
+     * @param {boolean} admin
      */
-    constructor(username, passwordHash, totpSecret, email, premium) {
+    constructor(username, passwordHash, totpSecret, email, premium, admin) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.totpSecret = totpSecret;
         this.email = email;
         this.premium = premium;
+        this.admin = admin;
     }
 
     /**
@@ -35,6 +37,7 @@ export class User {
             await hashPassword(password),
             await generateTotpSecret(),
             email,
+            false,
             false,
         );
     }
@@ -60,6 +63,7 @@ export class User {
             userData.totp_secret,
             userData.email,
             userData.premium,
+            userData.admin,
         );
     }
 
@@ -71,9 +75,16 @@ export class User {
      */
     async writeToDatabase() {
         await query(
-            `INSERT INTO end_user (username, password_hash, totp_secret, email, premium)
-        VALUES ($1, $2, $3, $4, $5)`,
-            [this.username, this.passwordHash, this.totpSecret, this.email, this.premium],
+            `INSERT INTO end_user (username, password_hash, totp_secret, email, premium, admin)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+                this.username,
+                this.passwordHash,
+                this.totpSecret,
+                this.email,
+                this.premium,
+                this.admin,
+            ],
         );
     }
 

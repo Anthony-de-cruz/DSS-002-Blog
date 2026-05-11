@@ -21,6 +21,15 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
+function escapeHtml(value) {
+    return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 // GET register.
 router.get("/", collectSessionData, function (req, res, next) {
     if (res.locals.loggedIn) return res.redirect("/");
@@ -76,7 +85,9 @@ router.get("/mfa", verifyRegisterSession, collectRegisterData, async function (r
             res.locals.pendingUser.email,
             res.locals.pendingUser.totpSecret,
         );
-        const page = template.replaceAll("__QR_CODE_DATA_URL__", await QRCode.toDataURL(totpUri));
+        const page = template
+            .replaceAll("__QR_CODE_DATA_URL__", await QRCode.toDataURL(totpUri))
+            .replaceAll("__TOTP_URI__", escapeHtml(totpUri));
 
         return res.type("html").send(page);
     } catch (err) {
@@ -104,6 +115,7 @@ router.post(
                 res.locals.pendingUser.passwordHash,
                 res.locals.pendingUser.totpSecret,
                 res.locals.pendingUser.email,
+                false,
                 false,
             );
             try {
