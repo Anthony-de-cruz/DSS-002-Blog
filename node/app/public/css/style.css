@@ -25,6 +25,18 @@ header > h1 {
   color: #ffffff;
 }
 
+<<<<<<< HEAD
+=======
+#admin_banner {
+  color: red;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 24px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 #logo {
   width: 150px;
   height: 150px;
@@ -103,6 +115,19 @@ input {
   font-size: 14px;
 }
 
+<<<<<<< HEAD
+=======
+#totp-uri {
+  width: 100%;
+  max-width: 640px;
+  box-sizing: border-box;
+  display: block;
+  margin: 5px 0 15px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 nav ul {
   list-style-type: none;
 }
@@ -355,4 +380,8 @@ legend {
 
 #postForm button[type="submit"]:hover {
   background-color: #3b82f6;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9

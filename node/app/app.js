@@ -1,6 +1,9 @@
 import http from "http";
+<<<<<<< HEAD
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+=======
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 import path from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -13,6 +16,7 @@ import { router as logoutRouter } from "./routes/logout.js";
 import { router as registerRouter } from "./routes/register.js";
 import { router as accountRouter } from "./routes/account.js";
 import { router as apiRouter } from "./routes/api.js";
+<<<<<<< HEAD
 
 const app = express();
 
@@ -38,6 +42,12 @@ export function checkPasswordStrength(password) {
   };
   return rules.minLength && rules.hasUpperCase && rules.hasLowerCase && rules.hasNumber;
 }
+=======
+import { router as postsRouter } from "./routes/posts.js";
+
+const app = express();
+
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 // Request parsing middleware.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,6 +63,10 @@ app.use("/login", loginRouter);
 app.use("/register", registerRouter);
 app.use("/logout", logoutRouter);
 app.use("/account", accountRouter);
+<<<<<<< HEAD
+=======
+app.use("/posts", postsRouter);
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 app.use("/api", apiRouter);
 
 // Error handling middleware.
@@ -65,6 +79,7 @@ app.use((err, req, res, next) => {
     res.status(500).sendFile(path.join(import.meta.dirname, "public", "html", "500.html"));
 });
 
+<<<<<<< HEAD
 // // Make a post POST request
 // app.post("/makepost", function (req, res) {
 //     // Read in current posts
@@ -135,6 +150,8 @@ app.use((err, req, res, next) => {
 //     res.sendFile(__dirname + "/public/html/my_posts.html");
 // });
 
+=======
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 /// Runtime setup.
 (async () => {
     if (!(await testConnection())) process.exit(1);

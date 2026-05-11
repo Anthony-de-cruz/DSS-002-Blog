@@ -11,13 +11,23 @@ export class User {
      * @param {Buffer} totpSecret
      * @param {string} email
      * @param {boolean} premium
+<<<<<<< HEAD
      */
     constructor(username, passwordHash, totpSecret, email, premium) {
+=======
+     * @param {boolean} admin
+     */
+    constructor(username, passwordHash, totpSecret, email, premium, admin) {
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
         this.username = username;
         this.passwordHash = passwordHash;
         this.totpSecret = totpSecret;
         this.email = email;
         this.premium = premium;
+<<<<<<< HEAD
+=======
+        this.admin = admin;
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
     }
 
     /**
@@ -36,6 +46,10 @@ export class User {
             await generateTotpSecret(),
             email,
             false,
+<<<<<<< HEAD
+=======
+            false,
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
         );
     }
 
@@ -60,6 +74,10 @@ export class User {
             userData.totp_secret,
             userData.email,
             userData.premium,
+<<<<<<< HEAD
+=======
+            userData.admin,
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
         );
     }
 
@@ -71,9 +89,22 @@ export class User {
      */
     async writeToDatabase() {
         await query(
+<<<<<<< HEAD
             `INSERT INTO end_user (username, password_hash, totp_secret, email, premium)
         VALUES ($1, $2, $3, $4, $5)`,
             [this.username, this.passwordHash, this.totpSecret, this.email, this.premium],
+=======
+            `INSERT INTO end_user (username, password_hash, totp_secret, email, premium, admin)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+                this.username,
+                this.passwordHash,
+                this.totpSecret,
+                this.email,
+                this.premium,
+                this.admin,
+            ],
+>>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
         );
     }
 
