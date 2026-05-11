@@ -1,0 +1,44 @@
+name: dss-blog
+services:
+  server:
+    build: node/
+    restart: unless-stopped
+    volumes:
+      - ./node:/node
+      - /node/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      # NONE OF THESE SECRETS ARE REAL.
+      PASSWORD_PEPPER: "2b3e8207cc135dabcd0464f0ce9ba74b"
+      TOTP_ENCRYPTION_KEY: "5f8d3c9a7b2e4d1f6a9c0e3b8d7f2a1c4e6b9d0f3a2c7e8b1d4f6a9c0e3b8d7f"
+      SESSION_PUB_KEY: "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtt4QcD4Fhu1SDOykvYI6Bm/9kgqH\nKFQr2cTUjeokOr0/snzFZc5pYFU1oQdF13iWka7C6I0q+eYOjwcR2JObbg==\n-----END PUBLIC KEY-----"
+      SESSION_PRI_KEY: "-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6cCM6EEYQ0df0idF\nMXxz5ROrPEo12lITQKAdnRvnS3KhRANCAAS23hBwPgWG7VIM7KS9gjoGb/2SCoco\nVCvZxNSN6iQ6vT+yfMVlzmlgVTWhB0XXeJaRrsLojSr55g6PBxHYk5tu\n-----END PRIVATE KEY-----"
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: postgres
+    # Ensure that postgres is running before starting up node
+    depends_on:
+      db:
+        condition: service_healthy 
+
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    shm_size: 128mb # set shared memory limit when using docker-compose
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./postgres/scripts:/scripts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
+      interval: 1s
+      retries: 5
+      timeout: 2s

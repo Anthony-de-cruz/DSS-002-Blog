@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Cyber Security Safety Blog Login</title>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="../js/errorMsg.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a href="../html/index.html"><img id="logo" src="../imgs/lock.png" /></a>
+      <h1>Welcome to Cyber Security Safety!</h1>
+    </header>
+    <main>
+      <p>You must reauthenticate in order to update account values.</p>
+      <p>Please enter your One Time Password to continue.</p>
+
+      <form method="post" action="/account/elevate" id="loginForm">
+        <label for="totp">One Time Password:</label>
+        <input
+          type="text"
+          id="totp"
+          name="totp"
+          placeholder="Please enter your one time password..."
+        />
+        <button id="loginBtn" type="submit">Log in</button>
+      </form>
+      <p id="error-msg" class="error hidden"></p>
+    </main>
+  </body>
+</html>
