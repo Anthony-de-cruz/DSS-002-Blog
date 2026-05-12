@@ -1,7 +1,7 @@
 import path from "path";
 import { readFile } from "node:fs/promises";
 import express from "express";
-import xss from 'xss'; // Sanitize user input to prevent XSS attacks
+import xss from "xss"; // Sanitize user input to prevent XSS attacks
 import QRCode from "qrcode";
 
 import {
@@ -62,14 +62,12 @@ router.post(
     async function (req, res, next) {
         if (res.locals.loggedIn) return res.redirect("/");
 
-   const cleanUsername = xss(req.body.username); // Clean input
-const cleanPassword = xss(req.body.password); // Clean input
-const cleanEmail = xss(req.body.email);       // Clean input
+        const cleanUsername = xss(req.body.username); // Clean input
+        const cleanPassword = xss(req.body.password); // Clean input
+        const cleanEmail = xss(req.body.email); // Clean input
 
         try {
-           const user = await User.buildNew(cleanUsername, cleanPassword, cleanEmail);
-        try {
-            const user = await User.buildNew(req.body.username, req.body.password, req.body.email);
+            const user = await User.buildNew(cleanUsername, cleanPassword, cleanEmail);
             await initRegisterSession(res, user);
             return res.redirect("/register/mfa");
         } catch (err) {
@@ -92,7 +90,6 @@ router.get("/mfa", verifyRegisterSession, collectRegisterData, async function (r
             res.locals.pendingUser.email,
             res.locals.pendingUser.totpSecret,
         );
-        const page = template.replaceAll("__QR_CODE_DATA_URL__", await QRCode.toDataURL(totpUri));
         const page = template
             .replaceAll("__QR_CODE_DATA_URL__", await QRCode.toDataURL(totpUri))
             .replaceAll("__TOTP_URI__", escapeHtml(totpUri));
