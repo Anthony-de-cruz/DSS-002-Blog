@@ -12,6 +12,7 @@ import { router as registerRouter } from "./routes/register.js";
 import { router as accountRouter } from "./routes/account.js";
 import { router as apiRouter } from "./routes/api.js";
 import { router as postsRouter } from "./routes/posts.js";
+import { router as premiumRouter } from "./routes/premium.js";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/logout", logoutRouter);
 app.use("/account", accountRouter);
 app.use("/posts", postsRouter);
 app.use("/api", apiRouter);
+app.use("/premium", premiumRouter);
 
 // Error handling middleware.
 app.use((req, res) => {

@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Cyber Security Safety Premium</title>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="../js/main.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a href="/"><img id="logo" src="../imgs/lock.png" /></a>
+      <h1>Cyber Security Safety</h1>
+      <div class="dropdown">
+        <button id="login_link" type="button">Username</button>
+        <div class="dropdown-content">
+          <a id="accountBtn" href="/account">My Account</a>
+          <a id="logout_btn" href="/logout">Log out</a>
+        </div>
+      </div>
+    </header>
+
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/posts">Latest Posts</a></li>
+        <li><a href="/posts/my">My Posts</a></li>
+        <li class="active"><a href="/premium">Premium Posts</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section>
+        <h2>Premium Security Guides</h2>
+        <p>Thank you for supporting the Cyber Security Safety community.</p>
+      </section>
+
+      <section>
+        <article class="post">
+          <figure>
+            <figcaption>
+              <h3>Advanced SQL Injection Defence</h3>
+              <h5>Premium Guide</h5>
+              <p>
+                SQL injection happens when untrusted input is treated as part of a database
+                command. This site reduces that risk by using parameterised queries, so user
+                input is passed separately from the SQL statement.
+              </p>
+            </figcaption>
+          </figure>
+        </article>
+
+        <article class="post">
+          <figure>
+            <figcaption>
+              <h3>Session Hijacking Protection</h3>
+              <h5>Premium Guide</h5>
+              <p>
+                Session hijacking can happen when attackers steal or reuse a user's session token.
+                Secure cookies, short token expiry, MFA, and avoiding token logs all help reduce
+                this risk.
+              </p>
+            </figcaption>
+          </figure>
+        </article>
+
+        <article class="post">
+          <figure>
+            <figcaption>
+              <h3>Password Guessing Controls</h3>
+              <h5>Premium Guide</h5>
+              <p>
+                Strong password hashing protects stored passwords, but login pages also need
+                controls such as MFA, generic error messages, and rate limiting to slow down
+                guessing attacks.
+              </p>
+            </figcaption>
+          </figure>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

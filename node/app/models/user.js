@@ -133,4 +133,15 @@ export class User {
         ]);
         this.email = newEmail;
     }
+
+    /**
+     * Update the user to a premium account.
+     *
+     * @returns {Promise<void>}
+     * @throws {DatabaseError} Failed to perform database query.
+     */
+    async UpdateToPremium() {
+        await query("UPDATE end_user SET premium = TRUE WHERE username = $1", [this.username]);
+        this.premium = true;
+    }
 }
