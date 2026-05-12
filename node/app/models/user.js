@@ -140,7 +140,7 @@ export class User {
      * @returns {Promise<void>}
      * @throws {DatabaseError} Failed to perform database query.
      */
-    async UpdateToPremium() {
+    async upgradeToPremium() {
         await query("UPDATE end_user SET premium = TRUE WHERE username = $1", [this.username]);
         this.premium = true;
     }
