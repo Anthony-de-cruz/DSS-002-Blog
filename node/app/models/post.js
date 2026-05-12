@@ -39,24 +39,6 @@ export class Post {
     }
 
     static async readAllFromDatabase() {
-<<<<<<< HEAD
-    const result = await query(
-        `SELECT post_id, username, title, content, timestamp
-         FROM post
-         ORDER BY timestamp DESC;`,
-        [],
-    );
-
-    return result.rows.map(
-        (postData) =>
-            new Post(
-                postData.post_id,
-                postData.username,
-                postData.title,
-                postData.content,
-                postData.timestamp,
-            ),
-=======
         const result = await query(
             `SELECT post_id, username, title, content, timestamp
          FROM post
@@ -73,7 +55,6 @@ export class Post {
                     postData.content,
                     postData.timestamp,
                 ),
->>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
         );
     }
 
@@ -126,8 +107,6 @@ export class Post {
     }
 
     /**
-<<<<<<< HEAD
-=======
      * Update a post when it belongs to the given user or the user is an admin.
      *
      * @param {number} id - The post id to update.
@@ -162,20 +141,6 @@ export class Post {
     }
 
     /**
->>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
-     * Delete a post from the database by id.
-     *
-     * @param {number} id - The post id to delete.
-     * @returns {Promise<void>}
-     * @throws {DatabaseError} Failed to perform database query.
-     */
-    static async delete(id) {
-        await query("DELETE FROM post WHERE post_id = $1", [id]);
-    }
-<<<<<<< HEAD
-=======
-
-    /**
      * Delete a post when it belongs to the given user or the user is an admin.
      *
      * @param {number} id - The post id to delete.
@@ -191,5 +156,4 @@ export class Post {
         );
         return result.rowCount === 1;
     }
->>>>>>> 87bbf515f64619f10e6a7ddf8297f0c9574cf4f9
 }
