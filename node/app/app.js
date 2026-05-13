@@ -28,17 +28,6 @@ const loginLimiter = rateLimit({
 
 app.use("/login", loginLimiter);
 
-export function checkPasswordStrength(password) {
-  if (!password) return false;
-  const rules = {
-    minLength: password.length >= 8,
-    hasUpperCase: /[A-Z]/.test(password),
-    hasLowerCase: /[a-z]/.test(password),
-    hasNumber: /[0-9]/.test(password)
-  };
-  return rules.minLength && rules.hasUpperCase && rules.hasLowerCase && rules.hasNumber;
-}
-
 // Request parsing middleware.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
