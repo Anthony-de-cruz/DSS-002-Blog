@@ -4,12 +4,18 @@ import pg from "pg";
  * Static connection pool.
  */
 const connectionPool = new pg.Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST || process.env.PGHOST,
+    port: process.env.DB_PORT || process.env.PGPORT || 5432,
+    user: process.env.DB_USER || process.env.PGUSER,
+    password: process.env.DB_PASSWORD || process.env.PGPASSWORD,
+    database: process.env.DB_NAME || process.env.PGDATABASE,
+    ssl:
+        process.env.PGSSLMODE === "require" || process.env.DATABASE_URL?.includes("sslmode=require")
+            ? { rejectUnauthorized: false }
+            : false,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
 });
 
 /**

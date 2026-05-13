@@ -1,6 +1,6 @@
 import path from "path";
 import express from "express";
-import xss from 'xss'; // Sanitize user input to prevent XSS attacks
+
 import {
     collectSessionData,
     initPreAuthSession,
@@ -18,7 +18,7 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
-/*login limit start*/
+// login limit start
 // Per-username: max 3 failed login attempts within RATE_WINDOW_MS.
 // Per-IP: max 5 failed login attempts within RATE_WINDOW_MS.
 
@@ -26,8 +26,8 @@ const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_ATTEMPTS_PER_USER = 3;
 const MAX_ATTEMPTS_PER_IP = 5;
 
-const userFailures = new Map();
-const ipFailures = new Map();
+const userFailures = new Map(); //username number[] of timestamps
+const ipFailures = new Map(); //IP number[] of timestamps
 
 function pruneTimestamps(arr) {
     const cutoff = Date.now() - RATE_WINDOW_MS;
@@ -71,7 +71,7 @@ function loginRateLimit(req, res, next) {
         return res.redirect("/login?error=tooManyAttempts");
     }
 
-    // Expose recorders to the route handler so it can register the outcome.
+    // Expose recorders to the route handler = register the outcome.
     res.locals.loginLimiter = {
         recordFailure: () => {
             recordFailure(userFailures, usernameKey);
@@ -84,12 +84,12 @@ function loginRateLimit(req, res, next) {
 
     return next();
 }
-
+// #login limit end
 
 /* GET login. */
 router.get("/", collectSessionData, function (req, res, next) {
-    if (res.locals.loggedIn) return res.redirect("/");
-    return res.sendFile(path.join(import.meta.dirname, "../public/html/login.html"));
+    if (res.locals.loggedIn) res.redirect("/");
+    res.sendFile(path.join(import.meta.dirname, "../public/html/login.html"));
 });
 
 /* POST login. */
@@ -109,31 +109,16 @@ router.post(
     requirePattern("username", /^[A-Za-z0-9_]+$/, function (req, res) {
         return res.redirect("/login?error=invalidCredentials");
     }),
+    // Per-username (3) and per-IP (5) failed-attempt rate limit; see #login limit block above.
+    loginRateLimit,
     async function (req, res, next) {
-         const cleanUsername = xss(req.body.username); // Clean input
-    const cleanPassword = xss(req.body.password); // Clean input
-        if (res.locals.loggedIn) return res.redirect("/");
+        if (res.locals.loggedIn) res.redirect("/");
 
-        console.log(`Attempting to log in as: ${cleanUsername}...`);
+        console.log(`Attempting to log in as: ${req.body.username}...`);
 
-        let user;
-        try {
-            user = await User.readFromDatabase(cleanUsername);
-        } catch (err) {
-            console.error(err);
-            return res.redirect("/login?error=invalidCredentials");
-        }
-
-        if (!(await verifyPassword(cleanPassword, user.passwordHash)))
-            return res.redirect("/login?error=invalidCredentials");
-
-        await initPreAuthSession(res, user.username);
-        return res.redirect("/login/mfa");
-    },
-);
-
-/*Delay Login Timings. */
-        const LOGIN_FAILURE_MIN_MS = 1000; // pad failed attempts to fix time
+        // #Delay login timing start
+        // Pad failed login response to fixed min duration
+        const LOGIN_FAILURE_MIN_MS = 1000;
         const loginStart = Date.now();
         const failInvalidCredentials = async () => {
             // Count this attempt against the per-user / per-IP rate limit.
@@ -145,13 +130,33 @@ router.post(
             }
             return res.redirect("/login?error=invalidCredentials");
         };
+        // #Delay timing end
 
+        let user;
+        try {
+            user = await User.readFromDatabase(req.body.username);
+        } catch (err) {
+            console.error(err);
+            return failInvalidCredentials();
+        }
+
+        if (!(await verifyPassword(req.body.password, user.passwordHash)))
+            return failInvalidCredentials();
+
+        // Successful password check — clear this user's failure counter so a
+        // legitimate user is not locked out by their own earlier typos.
+        res.locals.loginLimiter?.clearUserOnSuccess();
+
+        await initPreAuthSession(res, user.username);
+        return res.redirect("/login/mfa");
+    },
+);
 
 /* GET login mfa. */
 router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
-    if (res.locals.loggedIn) return res.redirect("/");
+    if (res.locals.loggedIn) res.redirect("/");
 
-    return res.sendFile(path.join(import.meta.dirname, "../public/html/login_mfa.html"));
+    res.sendFile(path.join(import.meta.dirname, "../public/html/login_mfa.html"));
 });
 
 /* POST login mfa. */

@@ -18,16 +18,21 @@ import { router as premiumRouter } from "./routes/premium.js";
 
 const app = express();
 
-app.use(helmet());
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: 5, // 同一个IP最多5次登录尝试
-  message: "登录失败次数过多，请15分钟后再试",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Trust the upstream proxy (Replit's preview/deploy sits behind one) so that
+// req.ip reflects the real client address. Required for accurate per-IP rate
+// limiting in routes/login.js.
+app.set("trust proxy", true);
 
-app.use("/login", loginLimiter);
+// app.use(helmet());
+// const loginLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15分钟
+//   max: 5, // 同一个IP最多5次登录尝试
+//   message: "登录失败次数过多，请15分钟后再试",
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
+
+// app.use("/login", loginLimiter);
 
 // Request parsing middleware.
 app.use(express.json());
@@ -62,14 +67,8 @@ app.use((err, req, res, next) => {
 (async () => {
     if (!(await testConnection())) process.exit(1);
     const server = http.createServer(app);
-    server.listen(process.env.PORT);
-    console.log(`\nListening on ${process.env.PORT}...`);
-
-    // const temp = await User.buildNew("user500", "password123", "email500@email.com");
-    // console.log(temp);
-    //
-    // const uri = await generateTotpUri(temp.email, temp.totpSecret);
-    // console.log(uri)
-    //
-    // await temp.writeToDatabase();
+    const port = process.env.PORT || 5000;
+    const host = process.env.HOST || "0.0.0.0";
+    server.listen(port, host);
+    console.log(`\nListening on ${host}:${port}...`);
 })();
