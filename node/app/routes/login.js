@@ -1,6 +1,6 @@
 import path from "path";
 import express from "express";
-
+import xss from 'xss'; // Sanitize user input to prevent XSS attacks
 import {
     collectSessionData,
     initPreAuthSession,
@@ -42,19 +42,21 @@ router.post(
         return res.redirect("/login?error=invalidCredentials");
     }),
     async function (req, res, next) {
+         const cleanUsername = xss(req.body.username); // Clean input
+    const cleanPassword = xss(req.body.password); // Clean input
         if (res.locals.loggedIn) return res.redirect("/");
 
-        console.log(`Attempting to log in as: ${req.body.username}...`);
+        console.log(`Attempting to log in as: ${cleanUsername}...`);
 
         let user;
         try {
-            user = await User.readFromDatabase(req.body.username);
+            user = await User.readFromDatabase(cleanUsername);
         } catch (err) {
             console.error(err);
             return res.redirect("/login?error=invalidCredentials");
         }
 
-        if (!(await verifyPassword(req.body.password, user.passwordHash)))
+        if (!(await verifyPassword(cleanPassword, user.passwordHash)))
             return res.redirect("/login?error=invalidCredentials");
 
         await initPreAuthSession(res, user.username);

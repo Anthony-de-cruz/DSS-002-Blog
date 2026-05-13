@@ -141,17 +141,6 @@ export class Post {
     }
 
     /**
-     * Delete a post from the database by id.
-     *
-     * @param {number} id - The post id to delete.
-     * @returns {Promise<void>}
-     * @throws {DatabaseError} Failed to perform database query.
-     */
-    static async delete(id) {
-        await query("DELETE FROM post WHERE post_id = $1", [id]);
-    }
-
-    /**
      * Delete a post when it belongs to the given user or the user is an admin.
      *
      * @param {number} id - The post id to delete.

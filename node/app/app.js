@@ -1,4 +1,6 @@
 import http from "http";
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import path from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -14,6 +16,17 @@ import { router as apiRouter } from "./routes/api.js";
 import { router as postsRouter } from "./routes/posts.js";
 
 const app = express();
+
+app.use(helmet());
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15分钟
+  max: 5, // 同一个IP最多5次登录尝试
+  message: "登录失败次数过多，请15分钟后再试",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use("/login", loginLimiter);
 
 // Request parsing middleware.
 app.use(express.json());
