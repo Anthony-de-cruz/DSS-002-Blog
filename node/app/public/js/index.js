@@ -1,38 +1,35 @@
 // Function to add the latest 2 posts to the home page
 async function loadLatestPosts() {
     // Load posts data
-    const post_response = await fetch("../json/posts.json");
+    const post_response = await fetch("/api/posts");
     const post_data = await post_response.json();
 
-    const login_response = await fetch("../json/login_attempt.json");
-    const login_data = await login_response.json();
+    const user_response = await fetch("/api/user");
+    const user_data = await user_response.json();
 
     // Remove current posts from page
     let postList = document.getElementById("postsList");
 
-    for (let i = 0; i < postList.children.length; i++) {
-        if (postList.children[i].nodeName == "article") {
-            postList.removeChild(postList.children[i]);
-        }
-    }
+    postList.querySelectorAll("article").forEach((post) => post.remove());
 
     // Load latest 2 posts
-    for (let i = post_data.length - 1; i > post_data.length - 3; i--) {
+    for (let i = 0; i < Math.min(post_data.length, 2); i++) {
         let author = post_data[i].username;
         let timestamp = post_data[i].timestamp;
         let title = post_data[i].title;
         let content = post_data[i].content;
-        let postId = post_data[i].postId;
+        let postId = post_data[i].id;
 
         let postContainer = document.createElement("article");
         postContainer.classList.add("post");
+        postContainer.dataset.postId = postId;
         let fig = document.createElement("figure");
         postContainer.appendChild(fig);
 
-        let postIdContainer = document.createElement("p");
+        let postIdContainer = document.createElement("h6");
         postIdContainer.textContent = postId;
         postIdContainer.hidden = true;
-        postId.id = "postId";
+        postIdContainer.id = "postId";
         postContainer.appendChild(postIdContainer);
 
         let img = document.createElement("img");
@@ -56,8 +53,31 @@ async function loadLatestPosts() {
         contentContainer.textContent = content;
         figcap.appendChild(contentContainer);
 
-        postList.insertBefore(postContainer, postList.querySelectorAll("section > p")[1]);
+        if (user_data.admin) {
+            let delBtn = document.createElement("button");
+            delBtn.classList.add("delBtn");
+            delBtn.textContent = "Delete";
+            delBtn.addEventListener("click", deletePost);
+            postContainer.appendChild(delBtn);
+        }
+
+        postList.insertBefore(postContainer, postList.querySelector("p:last-of-type"));
     }
 }
 
 loadLatestPosts();
+
+async function deletePost(e) {
+    const post = e.target.closest("article");
+    if (!post) {
+        return;
+    }
+
+    const response = await fetch(`/api/posts/${encodeURIComponent(post.dataset.postId)}`, {
+        method: "DELETE",
+    });
+
+    if (response.ok) {
+        post.remove();
+    }
+}

@@ -1,4 +1,6 @@
 import http from "http";
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import path from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -12,6 +14,7 @@ import { router as registerRouter } from "./routes/register.js";
 import { router as accountRouter } from "./routes/account.js";
 import { router as apiRouter } from "./routes/api.js";
 import { router as postsRouter } from "./routes/posts.js";
+import { router as premiumRouter } from "./routes/premium.js";
 
 const app = express();
 
@@ -19,6 +22,17 @@ const app = express();
 // req.ip reflects the real client address. Required for accurate per-IP rate
 // limiting in routes/login.js.
 app.set("trust proxy", true);
+
+// app.use(helmet());
+// const loginLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15分钟
+//   max: 5, // 同一个IP最多5次登录尝试
+//   message: "登录失败次数过多，请15分钟后再试",
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
+
+// app.use("/login", loginLimiter);
 
 // Request parsing middleware.
 app.use(express.json());
@@ -37,6 +51,7 @@ app.use("/logout", logoutRouter);
 app.use("/account", accountRouter);
 app.use("/posts", postsRouter);
 app.use("/api", apiRouter);
+app.use("/premium", premiumRouter);
 
 // Error handling middleware.
 app.use((req, res) => {

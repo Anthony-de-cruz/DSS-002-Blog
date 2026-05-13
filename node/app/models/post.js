@@ -39,22 +39,22 @@ export class Post {
     }
 
     static async readAllFromDatabase() {
-    const result = await query(
-        `SELECT post_id, username, title, content, timestamp
+        const result = await query(
+            `SELECT post_id, username, title, content, timestamp
          FROM post
          ORDER BY timestamp DESC;`,
-        [],
-    );
+            [],
+        );
 
-    return result.rows.map(
-        (postData) =>
-            new Post(
-                postData.post_id,
-                postData.username,
-                postData.title,
-                postData.content,
-                postData.timestamp,
-            ),
+        return result.rows.map(
+            (postData) =>
+                new Post(
+                    postData.post_id,
+                    postData.username,
+                    postData.title,
+                    postData.content,
+                    postData.timestamp,
+                ),
         );
     }
 
@@ -107,13 +107,53 @@ export class Post {
     }
 
     /**
-     * Delete a post from the database by id.
+     * Update a post when it belongs to the given user or the user is an admin.
      *
-     * @param {number} id - The post id to delete.
-     * @returns {Promise<void>}
+     * @param {number} id - The post id to update.
+     * @param {string} username - The current user's username.
+     * @param {boolean} admin - Whether the current user is an admin.
+     * @param {string} title - The new post title.
+     * @param {string} content - The new post content.
+     * @returns {Promise<Post|null>}
      * @throws {DatabaseError} Failed to perform database query.
      */
-    static async delete(id) {
-        await query("DELETE FROM post WHERE post_id = $1", [id]);
+    static async updateByAuthorizedUser(id, username, admin, title, content) {
+        const result = await query(
+            `UPDATE post
+             SET title = $1, content = $2
+             WHERE post_id = $3 AND (username = $4 OR $5 = TRUE)
+             RETURNING post_id, username, title, content, timestamp;`,
+            [title, content, id, username, admin],
+        );
+
+        if (result.rowCount !== 1) {
+            return null;
+        }
+
+        const postData = result.rows[0];
+        return new Post(
+            postData.post_id,
+            postData.username,
+            postData.title,
+            postData.content,
+            postData.timestamp,
+        );
+    }
+
+    /**
+     * Delete a post when it belongs to the given user or the user is an admin.
+     *
+     * @param {number} id - The post id to delete.
+     * @param {string} username - The current user's username.
+     * @param {boolean} admin - Whether the current user is an admin.
+     * @returns {Promise<boolean>}
+     * @throws {DatabaseError} Failed to perform database query.
+     */
+    static async deleteByAuthorizedUser(id, username, admin) {
+        const result = await query(
+            "DELETE FROM post WHERE post_id = $1 AND (username = $2 OR $3 = TRUE)",
+            [id, username, admin],
+        );
+        return result.rowCount === 1;
     }
 }
