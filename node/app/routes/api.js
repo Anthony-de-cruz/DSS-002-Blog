@@ -42,6 +42,7 @@ router.get("/user", verifyPostAuthSession, collectSessionData, function (req, re
     return res.json({
         username: res.locals.user.username,
         email: res.locals.user.email,
+        premium: res.locals.user.premium,
         admin: res.locals.user.admin,
     });
 });

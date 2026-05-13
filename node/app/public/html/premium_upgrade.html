@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Cyber Security Safety Premium Upgrade</title>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="../imgs/foodie.ico" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="../js/errorMsg.js" defer></script>
+    <script src="../js/main.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a href="/"><img id="logo" src="../imgs/lock.png" /></a>
+      <h1>Cyber Security Safety</h1>
+      <div class="dropdown">
+        <button id="login_link" type="button">Username</button>
+        <div class="dropdown-content">
+          <a id="accountBtn" href="/account">My Account</a>
+          <a id="logout_btn" href="/logout">Log out</a>
+        </div>
+      </div>
+    </header>
+
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/posts">Latest Posts</a></li>
+        <li><a href="/posts/my">My Posts</a></li>
+        <li class="active"><a href="/premium">Premium Posts</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section>
+        <h2>Upgrade to Premium</h2>
+        <p>Donate between GBP 1 and GBP 100 to unlock premium cyber security guides.</p>
+
+        <form action="/premium/upgrade" method="post" id="postForm" name="premiumForm">
+          <fieldset>
+            <legend>Premium Donation</legend>
+
+            <p id="error-msg" class="error"></p>
+
+            <label for="amount">Donation amount in pounds:</label>
+            <input
+              id="amount"
+              name="amount"
+              type="number"
+              min="1"
+              max="100"
+              step="1"
+              placeholder="5"
+              required
+            />
+
+            <label for="cardNumber">Card number:</label>
+            <input
+              id="cardNumber"
+              name="cardNumber"
+              type="text"
+              inputmode="numeric"
+              autocomplete="cc-number"
+              maxlength="23"
+              placeholder="4242 4242 4242 4242"
+              required
+            />
+
+            <label for="expiryMonth">Expiry month:</label>
+            <input
+              id="expiryMonth"
+              name="expiryMonth"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]{2}"
+              maxlength="2"
+              placeholder="12"
+              required
+            />
+
+            <label for="expiryYear">Expiry year:</label>
+            <input
+              id="expiryYear"
+              name="expiryYear"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]{4}"
+              maxlength="4"
+              placeholder="2030"
+              required
+            />
+
+            <label for="securityCode">Security code:</label>
+            <input
+              id="securityCode"
+              name="securityCode"
+              type="password"
+              inputmode="numeric"
+              autocomplete="cc-csc"
+              maxlength="4"
+              placeholder="123"
+              required
+            />
+
+            <button type="submit">Donate</button>
+          </fieldset>
+        </form>
+      </section>
+
+      <section>
+        <h2>Payment Security</h2>
+        <p>
+          This demo only stores the card expiry date, donation amount, and final four card digits.
+          The full card number and security code are checked, then discarded.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
