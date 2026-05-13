@@ -1,6 +1,6 @@
 import path from "path";
 import express from "express";
-import xss from 'xss'; // Sanitize user input to prevent XSS attacks
+import xss from "xss"; // Sanitize user input to prevent XSS attacks
 import {
     collectSessionData,
     initPreAuthSession,
@@ -18,7 +18,7 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
-/*login limit start*/
+// login limit start
 // Per-username: max 3 failed login attempts within RATE_WINDOW_MS.
 // Per-IP: max 5 failed login attempts within RATE_WINDOW_MS.
 
@@ -84,7 +84,7 @@ function loginRateLimit(req, res, next) {
 
     return next();
 }
-
+// #login limit end
 
 /* GET login. */
 router.get("/", collectSessionData, function (req, res, next) {
@@ -109,31 +109,18 @@ router.post(
     requirePattern("username", /^[A-Za-z0-9_]+$/, function (req, res) {
         return res.redirect("/login?error=invalidCredentials");
     }),
+    // Per-username (3) and per-IP (5) failed-attempt rate limit; see #login limit block above.
+    loginRateLimit,
     async function (req, res, next) {
-         const cleanUsername = xss(req.body.username); // Clean input
-    const cleanPassword = xss(req.body.password); // Clean input
         if (res.locals.loggedIn) return res.redirect("/");
+
+        const cleanUsername = xss(req.body.username); // Clean input
+        const cleanPassword = xss(req.body.password); // Clean input
 
         console.log(`Attempting to log in as: ${cleanUsername}...`);
 
-        let user;
-        try {
-            user = await User.readFromDatabase(cleanUsername);
-        } catch (err) {
-            console.error(err);
-            return res.redirect("/login?error=invalidCredentials");
-        }
-
-        if (!(await verifyPassword(cleanPassword, user.passwordHash)))
-            return res.redirect("/login?error=invalidCredentials");
-
-        await initPreAuthSession(res, user.username);
-        return res.redirect("/login/mfa");
-    },
-);
-
-/*Delay Login Timings. */
-        const LOGIN_FAILURE_MIN_MS = 1000; // pad failed attempts to fix time
+        // Pad failed login responses to a fixed minimum duration.
+        const LOGIN_FAILURE_MIN_MS = 1000;
         const loginStart = Date.now();
         const failInvalidCredentials = async () => {
             // Count this attempt against the per-user / per-IP rate limit.
@@ -146,6 +133,25 @@ router.post(
             return res.redirect("/login?error=invalidCredentials");
         };
 
+        let user;
+        try {
+            user = await User.readFromDatabase(cleanUsername);
+        } catch (err) {
+            console.error(err);
+            return failInvalidCredentials();
+        }
+
+        if (!(await verifyPassword(cleanPassword, user.passwordHash)))
+            return failInvalidCredentials();
+
+        // Successful password check clears this user's failure counter so
+        // earlier typos do not keep blocking a legitimate login.
+        res.locals.loginLimiter?.clearUserOnSuccess();
+
+        await initPreAuthSession(res, user.username);
+        return res.redirect("/login/mfa");
+    },
+);
 
 /* GET login mfa. */
 router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
