@@ -1,7 +1,6 @@
 import path from "path";
 import { readFile } from "node:fs/promises";
 import express from "express";
-import xss from "xss"; // Sanitize user input to prevent XSS attacks
 import QRCode from "qrcode";
 
 import {
@@ -62,12 +61,8 @@ router.post(
     async function (req, res, next) {
         if (res.locals.loggedIn) return res.redirect("/");
 
-        const cleanUsername = xss(req.body.username); // Clean input
-        const cleanPassword = xss(req.body.password); // Clean input
-        const cleanEmail = xss(req.body.email); // Clean input
-
         try {
-            const user = await User.buildNew(cleanUsername, cleanPassword, cleanEmail);
+            const user = await User.buildNew(req.body.username, req.body.password, req.body.email);
             await initRegisterSession(res, user);
             return res.redirect("/register/mfa");
         } catch (err) {
@@ -123,13 +118,20 @@ router.post(
                 false,
                 false,
             );
+            // #registration feedback start
+            // Treat a duplicate-username failure (and any other write error) as
+            // a generic "registration failed" so the response cannot be used to
+            // confirm whether the chosen username is already taken.
+            // The user is sent back to /register with the same neutral error
+            // string used by every other validation failure on this flow.
             try {
                 await user.writeToDatabase();
             } catch (err) {
                 console.error(err);
                 res.clearCookie("sessionToken");
-                return res.redirect("/register?error=accountExists");
+                return res.redirect("/register?error=invalidRegistration");
             }
+            // #registration feedback end
 
             await initPostAuthSession(res, user.username);
             return res.redirect("/");
