@@ -23,13 +23,14 @@ export class User {
     }
 
     /**
-     * Generate
+     * Create a new user object with a hashed password and encrypted MFA secret.
      *
-     * @param {string} username -
-     * @param {string} password -
-     * @param {string} email -
-     * @returns
-     * @throws
+     * @param {string} username - The new user's username.
+     * @param {string} password - The new user's plain text password.
+     * @param {string} email - The new user's email address.
+     * @returns {Promise<User>}
+     * @throws {BadPasswordError} Password does not meet password rules.
+     * @throws {CryptographyError} Password hashing or MFA secret encryption failed.
      */
     static async buildNew(username, password, email) {
         return new User(
@@ -68,10 +69,10 @@ export class User {
     }
 
     /**
-     * Build an instance from a prexisting DB record.
+     * Save this user object as a new database row.
      *
      * @returns {Promise<void>}
-     * @throws
+     * @throws {DatabaseError} Failed to perform database query.
      */
     async writeToDatabase() {
         await query(

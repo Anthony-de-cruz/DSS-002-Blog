@@ -21,6 +21,9 @@ async function renderAccountData() {
     }
 }
 
+/**
+ * Add an administrator label to the page header when the user is an admin.
+ */
 function renderAdminBanner() {
     if (document.querySelector("#admin_banner")) {
         return;

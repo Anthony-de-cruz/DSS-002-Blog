@@ -21,6 +21,9 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
+/**
+ * Escape special HTML characters before placing text inside an HTML template.
+ */
 function escapeHtml(value) {
     return value
         .replaceAll("&", "&amp;")
@@ -30,13 +33,13 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
-// GET register.
+// Show the registration page to users who are not already logged in.
 router.get("/", collectSessionData, function (req, res, next) {
     if (res.locals.loggedIn) return res.redirect("/");
     return res.sendFile(path.join(import.meta.dirname, "../public/html/register.html"));
 });
 
-// POST register.
+// Validate registration details and begin MFA setup for the new account.
 router.post(
     "/",
     collectSessionData,
@@ -72,7 +75,7 @@ router.post(
     },
 );
 
-/* GET register mfa. */
+// Show the MFA setup page with the user's QR code.
 router.get("/mfa", verifyRegisterSession, collectRegisterData, async function (req, res, next) {
     if (!res.locals.pendingUser) return res.redirect("/register?error=setupExpired");
 
@@ -95,7 +98,7 @@ router.get("/mfa", verifyRegisterSession, collectRegisterData, async function (r
     }
 });
 
-/* POST register mfa. */
+// Verify the first MFA code, then save the new account to the database.
 router.post(
     "/mfa",
     verifyRegisterSession,

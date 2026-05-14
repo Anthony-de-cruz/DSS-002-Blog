@@ -1,6 +1,6 @@
 import http from "http";
-import rateLimit from 'express-rate-limit';
-import helmet from 'helmet';
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import path from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -53,17 +53,18 @@ app.use("/posts", postsRouter);
 app.use("/api", apiRouter);
 app.use("/premium", premiumRouter);
 
-// Error handling middleware.
+// Send the custom 404 page when no route matches the request.
 app.use((req, res) => {
     console.log("Sending 404: " + req.path.toString());
     res.status(404).sendFile(path.join(import.meta.dirname, "public", "html", "404.html"));
 });
+// Send the custom 500 page when a route or middleware throws an error.
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).sendFile(path.join(import.meta.dirname, "public", "html", "500.html"));
 });
 
-/// Runtime setup.
+// Test the database connection, then start the HTTP server.
 (async () => {
     if (!(await testConnection())) process.exit(1);
     const server = http.createServer(app);

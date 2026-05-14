@@ -38,6 +38,12 @@ export class Post {
         return new Post(result.rows[0].post_id, username, title, content, result.rows[0].timestamp);
     }
 
+    /**
+     * Read every blog post from the database, newest first.
+     *
+     * @returns {Promise<Post[]>}
+     * @throws {DatabaseError} Failed to perform database query.
+     */
     static async readAllFromDatabase() {
         const result = await query(
             `SELECT post_id, username, title, content, timestamp

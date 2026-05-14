@@ -10,13 +10,10 @@ CREATE TABLE IF NOT EXISTS end_user (
     PRIMARY KEY (username)
 );
 
--- Should probably look to encrypt the following table.
 CREATE TABLE IF NOT EXISTS payment_method (
-    payment_method_id SERIAL,
-    username          VARCHAR(20) NOT NULL,
-    last_4_digits     CHAR(4)     NOT NULL CHECK (last_4_digits ~ '^[0-9]{4}$'),  -- 4 digits
-    expiry_year       INT         NOT NULL CHECK (expiry_year BETWEEN 2026 AND 2050),
-    expiry_month      INT         NOT NULL CHECK (expiry_month BETWEEN 1 AND 12),
+    payment_method_id         SERIAL,
+    username                  VARCHAR(20) NOT NULL,
+    encrypted_payment_details BYTEA       NOT NULL CHECK (octet_length(encrypted_payment_details) > 12),
     PRIMARY KEY (payment_method_id),
     FOREIGN KEY (username) REFERENCES end_user (username)
         ON UPDATE CASCADE

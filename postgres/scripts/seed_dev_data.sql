@@ -25,9 +25,9 @@ INSERT INTO end_user (username, password_hash, totp_secret, email, premium, admi
     true,
     true);
 
-INSERT INTO payment_method (username, last_4_digits, expiry_year, expiry_month) VALUES
-    ('user0', '1234', 2030, 1),
-    ('user1', '1235', 2029, 12);
+INSERT INTO payment_method (username, encrypted_payment_details) VALUES
+    ('user0', decode('0000000c000000380000001068c3c28b8b4d4d4230800eec279b413c847bfc511bc85a930f736620aa78deed9a943767e31e136697e9a9259147eda82b6c2ddfeae9f36d95e39b14af36a757a67c4d05706b3f6d585f2e9d0b688eec9adabb6e', 'hex')),
+    ('user1', decode('0000000c0000003900000010be17525159354a062ffac26ea34a0ff54f829f2562777854f9f753d7d5e580f8e97cbed3747663c693d00d2d880833780c974e8e1f116a1b0383f9291d73e6ef218fdf56cb977a3a6624415916409d89c36e32a297', 'hex'));
 
 INSERT INTO transactions (payment_method_id, amount) VALUES
     (1, 10),

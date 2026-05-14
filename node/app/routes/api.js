@@ -7,6 +7,9 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
+/**
+ * Convert a post id from a URL or form field into a positive number.
+ */
 function parsePostId(value) {
     if (value === undefined || value === null) {
         return null;
@@ -29,11 +32,14 @@ function parsePostId(value) {
     return postId > 0 ? postId : undefined;
 }
 
+/**
+ * Send a standard bad request response when post data is invalid.
+ */
 function invalidPostInput(req, res) {
     return res.status(400).send("Invalid post input.");
 }
 
-// GET user data.
+// Return the logged-in user's public account data as JSON.
 router.get("/user", verifyPostAuthSession, collectSessionData, function (req, res, next) {
     if (!(res.locals.user instanceof User)) {
         return res.sendStatus(404);
@@ -47,7 +53,7 @@ router.get("/user", verifyPostAuthSession, collectSessionData, function (req, re
     });
 });
 
-// GET post data.
+// Return all blog posts as JSON for the front-end pages.
 router.get("/posts", verifyPostAuthSession, async function (req, res, next) {
     try {
         const posts = await Post.readAllFromDatabase();
@@ -57,7 +63,7 @@ router.get("/posts", verifyPostAuthSession, async function (req, res, next) {
     }
 });
 
-// POST
+// Create a new post or update an existing post from the submitted form.
 router.post(
     "/posts",
     verifyPostAuthSession,
@@ -106,7 +112,7 @@ router.post(
     },
 );
 
-// DELETE post by id.
+// Delete a post when the current user owns it or has admin permissions.
 router.delete(
     "/posts/:id",
     verifyPostAuthSession,

@@ -1,4 +1,3 @@
-// Function to add the latest 2 posts to the home page
 async function loadLatestPosts() {
     // Load posts data
     const post_response = await fetch("/api/posts");
@@ -67,6 +66,9 @@ async function loadLatestPosts() {
 
 loadLatestPosts();
 
+/**
+ * Delete a post from the server and remove it from the page when successful.
+ */
 async function deletePost(e) {
     const post = e.target.closest("article");
     if (!post) {
