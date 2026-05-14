@@ -1,9 +1,9 @@
 /**
- * 
- * 
- * @param {} fields
- * @param {function(int):void} failure
- * @returns 
+ * Create middleware that checks a form has all required fields filled in.
+ *
+ * @param {string[]} fields - Field names that must exist in the submitted form.
+ * @param {function} failure - Function that sends the user to the error response.
+ * @returns {function} Express middleware that validates required form fields.
  */
 export function requireFields(fields, failure) {
     return function (req, res, next) {
@@ -21,11 +21,11 @@ export function requireFields(fields, failure) {
 }
 
 /**
- * 
- * 
- * @param {string} field 
- * @param {function(int):void} failure
- * @returns 
+ * Create middleware that checks a TOTP/MFA code is exactly six digits.
+ *
+ * @param {string} field - Name of the form field containing the TOTP code.
+ * @param {function} failure - Function that sends the user to the error response.
+ * @returns {function} Express middleware that validates the TOTP field.
  */
 export function requireTotp(field, failure) {
     return function (req, res, next) {
@@ -42,12 +42,12 @@ export function requireTotp(field, failure) {
 }
 
 /**
- * 
- * 
- * @param {*} field 
- * @param {*} maxLength 
- * @param {*} failure 
- * @returns 
+ * Create middleware that rejects a form field when it is too long.
+ *
+ * @param {string} field - Name of the form field to check.
+ * @param {number} maxLength - Maximum allowed number of characters.
+ * @param {function} failure - Function that sends the user to the error response.
+ * @returns {function} Express middleware that checks field length.
  */
 export function requireMaxLength(field, maxLength, failure) {
     return function (req, res, next) {
@@ -61,12 +61,12 @@ export function requireMaxLength(field, maxLength, failure) {
 }
 
 /**
- * 
- * 
- * @param {*} field 
- * @param {*} pattern 
- * @param {*} failure 
- * @returns 
+ * Create middleware that checks a form field matches a regular expression.
+ *
+ * @param {string} field - Name of the form field to check.
+ * @param {RegExp} pattern - Regular expression the field must match.
+ * @param {function} failure - Function that sends the user to the error response.
+ * @returns {function} Express middleware that validates the field format.
  */
 export function requirePattern(field, pattern, failure) {
     return function (req, res, next) {

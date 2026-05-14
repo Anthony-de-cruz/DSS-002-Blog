@@ -17,16 +17,17 @@ import {
 
 export const router = express.Router();
 
+// Show the account details page for a logged-in user.
 router.get("/", verifyPostAuthSession, function (req, res, next) {
     res.sendFile(path.join(import.meta.dirname, "../public/html/account.html"));
 });
 
-// GET elevate account.
+// Show the MFA re-check page before allowing sensitive account edits.
 router.get("/elevate", verifyPostAuthSession, collectSessionData, function (req, res, next) {
     res.sendFile(path.join(import.meta.dirname, "../public/html/account_elevate.html"));
 });
 
-// POST elevate account.
+// Verify MFA again and start an elevated session for account changes.
 router.post(
     "/elevate",
     verifyPostAuthSession,
@@ -51,12 +52,12 @@ router.post(
     },
 );
 
-// GET edit account.
+// Show the account edit page after the user has re-authenticated.
 router.get("/edit", verifyElevatedAuthSession, collectSessionData, function (req, res, next) {
     res.sendFile(path.join(import.meta.dirname, "../public/html/account_edit.html"));
 });
 
-// POST edit account username.
+// Update the user's username after validation.
 router.post(
     "/edit/username",
     verifyElevatedAuthSession,
@@ -86,7 +87,7 @@ router.post(
     },
 );
 
-// POST edit account password.
+// Update the user's password after validation and hashing.
 router.post(
     "/edit/password",
     verifyElevatedAuthSession,
@@ -111,7 +112,7 @@ router.post(
     },
 );
 
-// POST edit account email.
+// Update the user's email address after validation.
 router.post(
     "/edit/email",
     verifyElevatedAuthSession,

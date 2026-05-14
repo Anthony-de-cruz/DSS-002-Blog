@@ -180,9 +180,7 @@ export async function verifyTotpCode(code, encryptedTotpSecret) {
 }
 
 /**
- * Encrypt the card details that are safe to keep after validation.
- *
- * The full card number and security code should not be passed here.
+ * Encrypt the card details that are safe to keep after validation
  *
  * @param {string} last4Digits - The final four card digits.
  * @param {number} expiryYear - Four digit expiry year.

@@ -1,4 +1,6 @@
-// Function to load posts made by user who is currently logged in
+/**
+ * Load posts made by the current user, or all posts when the user is an admin.
+ */
 async function loadPosts() {
     // Load posts data
     const post_response = await fetch("/api/posts");
@@ -76,7 +78,6 @@ async function loadPosts() {
 
 loadPosts();
 
-// Function to remove a post from the page after clicking delete - this is also reflected on the server side
 async function deletePost(e) {
     const post = e.target.closest("article");
     if (!post) {
@@ -94,7 +95,6 @@ async function deletePost(e) {
     }
 }
 
-// Function to edit post
 function editPost(e) {
     // Get post that the user clicked on
     let post = e.target.closest("article");
@@ -112,7 +112,9 @@ function editPost(e) {
     document.getElementById("postForm").scrollIntoView({ behavior: "smooth" });
 }
 
-// Function to filter posts on page using search bar
+/**
+ * Hide posts that do not match the search box text.
+ */
 function searchPosts() {
     let searchBar = document.getElementById("search");
 

@@ -1,4 +1,3 @@
-// Function to load posts made by user who is currently logged in
 async function loadPosts() {
     // Load posts data from database API
     const post_response = await fetch("/api/posts");
@@ -82,7 +81,6 @@ async function deletePost(e) {
     }
 }
 
-// Function to filter posts on page using search bar
 function searchPosts() {
     let searchBar = document.getElementById("search");
 

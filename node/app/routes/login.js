@@ -29,12 +29,18 @@ const MAX_ATTEMPTS_PER_IP = 5;
 const userFailures = new Map();
 const ipFailures = new Map();
 
+
+// Remove old failed-login timestamps that are outside the rate-limit window.
+ 
 function pruneTimestamps(arr) {
     const cutoff = Date.now() - RATE_WINDOW_MS;
     while (arr.length && arr[0] < cutoff) arr.shift();
     return arr;
 }
 
+
+ //Count recent failed login attempts for a username or IP address.
+ 
 function countFailures(map, key) {
     if (!key) return 0;
     const arr = map.get(key);
@@ -42,6 +48,7 @@ function countFailures(map, key) {
     return pruneTimestamps(arr).length;
 }
 
+ //Record a failed login attempt for a username or IP address.#
 function recordFailure(map, key) {
     if (!key) return;
     const arr = map.get(key) || [];
@@ -50,10 +57,12 @@ function recordFailure(map, key) {
     map.set(key, arr);
 }
 
+//Clear stored login failures after a successful login.
 function clearFailures(map, key) {
     if (key) map.delete(key);
 }
 
+//Block login attempts when too many recent failures have happened.
 function loginRateLimit(req, res, next) {
     const ipKey = req.ip || req.socket?.remoteAddress || "unknown";
     const usernameKey =
@@ -86,13 +95,13 @@ function loginRateLimit(req, res, next) {
 }
 // #login limit end
 
-/* GET login. */
+// Show the login page, unless the user is already logged in.
 router.get("/", collectSessionData, function (req, res, next) {
     if (res.locals.loggedIn) return res.redirect("/");
     return res.sendFile(path.join(import.meta.dirname, "../public/html/login.html"));
 });
 
-/* POST login. */
+// Check username and password, then start the MFA step when they are valid.
 router.post(
     "/",
     collectSessionData,
@@ -153,14 +162,14 @@ router.post(
     },
 );
 
-/* GET login mfa. */
+// Show the MFA page after the password has been accepted.
 router.get("/mfa", verifyPreAuthSession, collectSessionData, function (req, res, next) {
     if (res.locals.loggedIn) return res.redirect("/");
 
     return res.sendFile(path.join(import.meta.dirname, "../public/html/login_mfa.html"));
 });
 
-/* POST login mfa. */
+// Verify the MFA code and complete login.
 router.post(
     "/mfa",
     verifyPreAuthSession,

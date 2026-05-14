@@ -7,8 +7,7 @@ import { Payment } from "../models/payment.js";
 
 export const router = express.Router();
 
-//Parse a wholenumber donation amount from the submitted form
-
+//Parse a whole-number donation amount from the submitted form.
 function parseDonationAmount(value) {
     if (typeof value !== "string") {
         return null;
@@ -23,8 +22,7 @@ function parseDonationAmount(value) {
     return Number.parseInt(trimmedValue, 10);
 }
 
-//Normalise and validate a card number without storing the full value
-
+ //Normalise and validate a card number without storing the full value.
 function parseCardNumber(value) {
     if (typeof value !== "string") {
         return null;
@@ -39,7 +37,6 @@ function parseCardNumber(value) {
 }
 
 //Use the Luhn algorithm to check that the card number has a valid structure.
-
 function passesLuhnCheck(cardNumber) {
     let sum = 0;
     let doubleDigit = false;
@@ -61,8 +58,7 @@ function passesLuhnCheck(cardNumber) {
     return sum % 10 === 0;
 }
 
-// Validate the card expiry date and reject expired cards
-
+//Validate the card expiry date and reject expired cards.
 function parseExpiry(monthValue, yearValue) {
     if (
         typeof monthValue !== "string" ||
@@ -95,8 +91,7 @@ function parseExpiry(monthValue, yearValue) {
     return { month, year };
 }
 
-//Security codes are checked for format only and are never stored
-
+//Check the security code format without storing the security code.
 function isValidSecurityCode(value) {
     return typeof value === "string" && /^[0-9]{3,4}$/.test(value.trim());
 }
@@ -119,17 +114,17 @@ router.get("/upgrade", verifyPostAuthSession, collectSessionData, function (req,
     return res.sendFile(path.join(import.meta.dirname, "../public/html/premium_upgrade.html"));
 });
 
-// Validate the demo payment, record only safe payment details, then upgrade the account
+// Validate the demo payment, record only encrypted safe details, then upgrade the account.
 router.post(
     "/upgrade",
     verifyPostAuthSession,
     collectSessionData,
-    requireFields(["amount", "cardNumber", "expiryMonth", "expiryYear", "securityCode"], function (
-        req,
-        res,
-    ) {
-        return res.redirect("/premium/upgrade?error=missingFields");
-    }),
+    requireFields(
+        ["amount", "cardNumber", "expiryMonth", "expiryYear", "securityCode"],
+        function (req, res) {
+            return res.redirect("/premium/upgrade?error=missingFields");
+        },
+    ),
     async function (req, res, next) {
         const amount = parseDonationAmount(req.body.amount);
         const cardNumber = parseCardNumber(req.body.cardNumber);

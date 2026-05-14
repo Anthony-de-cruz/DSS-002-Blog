@@ -6,7 +6,7 @@ import { User } from "../models/user.js";
 
 export const router = express.Router();
 
-/* GET index. */
+// Show the home page after the user has logged in.
 router.get("/", verifyPostAuthSession, collectSessionData, function (req, res, next) {
     res.sendFile(path.join(import.meta.dirname, "../public/html/index.html"));
 });
