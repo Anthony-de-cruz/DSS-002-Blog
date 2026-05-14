@@ -6,17 +6,22 @@ import jwt from "jsonwebtoken";
 if (
     !process.env.PASSWORD_PEPPER ||
     !process.env.TOTP_ENCRYPTION_KEY ||
+    !process.env.PAYMENT_ENCRYPTION_KEY ||
     !process.env.SESSION_PUB_KEY ||
     !process.env.SESSION_PRI_KEY
 )
     throw new Error(
-        "PASSWORD_PEPPER, TOTP_ENCRYPTION_KEY, SESSION_PUB_KEY, SESSION_PRI_KEY environment variables are required",
+        "PASSWORD_PEPPER, TOTP_ENCRYPTION_KEY, PAYMENT_ENCRYPTION_KEY, SESSION_PUB_KEY, SESSION_PRI_KEY environment variables are required",
     );
 
 const passwordPepper = Buffer.from(process.env.PASSWORD_PEPPER, "hex");
 const passwordHashingAlgo = "argon2id";
 
-const totpEncryptionKey = Buffer.from(process.env.TOTP_ENCRYPTION_KEY, "hex");
+const totpEncryptionKey = readEncryptionKey(process.env.TOTP_ENCRYPTION_KEY, "TOTP_ENCRYPTION_KEY");
+const paymentEncryptionKey = readEncryptionKey(
+    process.env.PAYMENT_ENCRYPTION_KEY,
+    "PAYMENT_ENCRYPTION_KEY",
+);
 
 const sessionPublicKey = process.env.SESSION_PUB_KEY;
 const sessionPrivateKey = process.env.SESSION_PRI_KEY;
@@ -114,7 +119,7 @@ export async function generateTotpSecret() {
     } catch (err) {
         throw new CryptographyError(err);
     }
-    return encrypt(secret);
+    return encrypt(secret, totpEncryptionKey);
 }
 
 /**
@@ -126,7 +131,7 @@ export async function generateTotpSecret() {
  * @throws {CryptographyError} Decryption or generation operation failed.
  */
 async function generateTotpCode(encryptedTotpSecret) {
-    const secret = decrypt(encryptedTotpSecret);
+    const secret = decrypt(encryptedTotpSecret, totpEncryptionKey);
     try {
         return await generate({ secret: secret });
     } catch (err) {
@@ -144,7 +149,7 @@ async function generateTotpCode(encryptedTotpSecret) {
  * @throws {CryptographyError} Decryption or verification operation failed.
  */
 export async function generateTotpUri(email, encryptedTotpSecret) {
-    const secret = decrypt(encryptedTotpSecret);
+    const secret = decrypt(encryptedTotpSecret, totpEncryptionKey);
     try {
         return generateURI({
             issuer: "CyberBlog",
@@ -165,10 +170,49 @@ export async function generateTotpUri(email, encryptedTotpSecret) {
  * @throws {CryptographyError} Decryption or verification operation failed.
  */
 export async function verifyTotpCode(code, encryptedTotpSecret) {
-    const secret = decrypt(encryptedTotpSecret);
+    const secret = decrypt(encryptedTotpSecret, totpEncryptionKey);
     try {
         const result = await verifyOtp({ secret: secret, token: code });
         return result.valid;
+    } catch (err) {
+        throw new CryptographyError(err);
+    }
+}
+
+/**
+ * Encrypt the card details that are safe to keep after validation.
+ *
+ * The full card number and security code should not be passed here.
+ *
+ * @param {string} last4Digits - The final four card digits.
+ * @param {number} expiryYear - Four digit expiry year.
+ * @param {number} expiryMonth - Expiry month from 1 to 12.
+ * @returns {Buffer} Encrypted payment details.
+ * @throws {CryptographyError} Encryption operation failed.
+ */
+export function encryptPaymentDetails(last4Digits, expiryYear, expiryMonth) {
+    return encrypt(
+        JSON.stringify({
+            last4Digits,
+            expiryYear,
+            expiryMonth,
+        }),
+        paymentEncryptionKey,
+    );
+}
+
+/**
+ * Decrypt stored payment details.
+ *
+ * @param {Buffer} encryptedPaymentDetails - The encrypted payment details.
+ * @returns {{last4Digits: string, expiryYear: number, expiryMonth: number}} Decrypted payment details.
+ * @throws {InvalidTokenError} Cannot decrypt.
+ * @throws {CryptographyError} Decryption operation failed.
+ */
+export function decryptPaymentDetails(encryptedPaymentDetails) {
+    const decryptedDetails = decrypt(encryptedPaymentDetails, paymentEncryptionKey);
+    try {
+        return JSON.parse(decryptedDetails);
     } catch (err) {
         throw new CryptographyError(err);
     }
@@ -181,16 +225,16 @@ export async function verifyTotpCode(code, encryptedTotpSecret) {
  * @returns {Buffer} Encrypted buffer.
  * @throws {CryptographyError} Ecryption operation failed.
  */
-function encrypt(secret) {
+function encrypt(secret, encryptionKey) {
     try {
         const iv = randomBytes(12);
-        const cipher = createCipheriv("aes-256-gcm", totpEncryptionKey, iv);
+        const cipher = createCipheriv("aes-256-gcm", encryptionKey, iv);
         const encryptedSecret = Buffer.concat([cipher.update(secret, "utf8"), cipher.final()]);
         const authTag = cipher.getAuthTag();
 
         // Real production environment should include
         // encryption methodology version number in the header.
-        const header = Buffer.alloc(12); // Allocate 3 × 4 bytes for header.
+        const header = Buffer.alloc(12); // Allocate 3 x 4 bytes for header.
         header.writeUInt32BE(iv.length, 0);
         header.writeUInt32BE(encryptedSecret.length, 4);
         header.writeUInt32BE(authTag.length, 8);
@@ -208,7 +252,7 @@ function encrypt(secret) {
  * @throws {InvalidTokenError} Cannot decrypt.
  * @throws {CryptographyError} Decryption operation failed.
  */
-function decrypt(encryptedSecret) {
+function decrypt(encryptedSecret, encryptionKey) {
     // Parse buffer header.
     const headerLength = 12;
     if (encryptedSecret.length < headerLength) {
@@ -234,13 +278,22 @@ function decrypt(encryptedSecret) {
 
     // Decrypt.
     try {
-        const decipher = createDecipheriv("aes-256-gcm", totpEncryptionKey, iv);
+        const decipher = createDecipheriv("aes-256-gcm", encryptionKey, iv);
         decipher.setAuthTag(authTag);
         const decryptedSecret = Buffer.concat([decipher.update(cipher), decipher.final()]);
         return decryptedSecret.toString();
     } catch (err) {
         throw new InvalidTokenError(err);
     }
+}
+
+function readEncryptionKey(value, name) {
+    const key = Buffer.from(value, "hex");
+    if (key.length !== 32) {
+        throw new Error(`${name} must be a 32 byte hex value for AES-256-GCM`);
+    }
+
+    return key;
 }
 
 /**
